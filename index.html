@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -364,16 +363,17 @@
         let activeMarker = null;
         let allVideos = [];
         
-        // Lista de 8 videos
+        // Lista de 9 videos - AJUSTA ESTAS RUTAS
         const videoSources = [
-            './videos/video1.mp4',
-            './videos/video2.mp4',
-            './videos/video3.mp4',
-            './videos/video4.mp4',
-            './videos/video5.mp4',
-            './videos/video6.mp4',
-            './videos/video7.mp4',
-            './videos/video8.mp4'
+            'video1.mp4',
+            'video2.mp4', 
+            'video3.mp4',
+            'video4.mp4',
+            'video5.mp4',
+            'video6.mp4',
+            'video7.mp4',
+            'video8.mp4',
+            'video9.mp4'  // Agregado el noveno video
         ];
         
         // =================== IDIOMAS SIMPLIFICADOS ===================
@@ -544,8 +544,8 @@
             let assetsHTML = '';
             let targetsHTML = '';
             
-            // Agregar 8 videos
-            for (let i = 0; i < 8; i++) {
+            // Agregar 9 videos
+            for (let i = 0; i < 9; i++) {
                 assetsHTML += `
                     <video 
                         id="ar-video${i}" 
@@ -560,51 +560,23 @@
                 `;
             }
             
-            // Crear 9 marcadores
+            // Crear 9 marcadores con videos
             for (let i = 0; i < 9; i++) {
                 targetsHTML += `
                     <a-entity 
                         id="ar-target${i}" 
                         mindar-image-target="targetIndex: ${i}"
                     >
-                `;
-                
-                if (i < 8) {
-                    // Marcadores con video
-                    targetsHTML += `
                         <a-plane
-                            src="#ar-video${i}"
+                            id="plane-${i}"
                             position="0 0 0"
-                            rotation="0 0 0"
-                            height="0.5625"
+                            rotation="-90 0 0"
                             width="1"
-                            material="shader: flat; transparent: true; opacity: 1;"
+                            height="0.5625"
+                            material="side: double; shader: flat; transparent: false"
                         ></a-plane>
-                    `;
-                } else {
-                    // Marcador 9 (sin video)
-                    targetsHTML += `
-                        <a-plane
-                            color="#26d0ce"
-                            position="0 0 0"
-                            rotation="0 0 0"
-                            height="0.5625"
-                            width="1"
-                            material="transparent: true; opacity: 0.8;"
-                        >
-                            <a-text 
-                                value="🌟"
-                                color="white"
-                                align="center"
-                                width="3"
-                                position="0 0 0.01"
-                                scale="1 1 1"
-                            ></a-text>
-                        </a-plane>
-                    `;
-                }
-                
-                targetsHTML += `</a-entity>`;
+                    </a-entity>
+                `;
             }
             
             // Crear escena completa
@@ -650,13 +622,49 @@
                 }, 3000);
                 
                 // Configurar eventos AR
-                setupAREvents();
+                setupARScene();
                 
             }, 100);
         }
         
-        // =================== EVENTOS AR ===================
-        function setupAREvents() {
+        // =================== CONFIGURAR ESCENA AR ===================
+        function setupARScene() {
+            const scene = document.querySelector('a-scene');
+            const t = translations[currentLang];
+            
+            scene.addEventListener('loaded', () => {
+                console.log("Escena AR cargada");
+                
+                // Precargar todos los videos
+                const videoPromises = [];
+                for (let i = 0; i < 9; i++) {
+                    const video = document.getElementById(`ar-video${i}`);
+                    if (video) {
+                        const promise = new Promise((resolve, reject) => {
+                            video.addEventListener('loadeddata', () => {
+                                console.log(`Video ${i+1} cargado`);
+                                resolve(video);
+                            });
+                            video.addEventListener('error', () => {
+                                console.error(`Error cargando video ${i+1}`);
+                                resolve(null);
+                            });
+                            // Forzar carga
+                            video.load();
+                        });
+                        videoPromises.push(promise);
+                    }
+                }
+                
+                Promise.all(videoPromises).then((videos) => {
+                    console.log("Todos los videos procesados");
+                    setupVideoMarkers();
+                });
+            });
+        }
+        
+        // =================== CONFIGURAR MARCADORES DE VIDEO ===================
+        function setupVideoMarkers() {
             const soundToggle = document.getElementById('soundToggle');
             const videoOverlay = document.getElementById('videoOverlay');
             const overlayVideo = document.getElementById('overlayVideo');
@@ -664,7 +672,7 @@
             
             // Configurar cada marcador
             for (let i = 0; i < 9; i++) {
-                const marker = document.querySelector(`#ar-target${i}`);
+                const marker = document.getElementById(`ar-target${i}`);
                 if (!marker) continue;
                 
                 // Cuando se encuentra el marcador
@@ -672,28 +680,57 @@
                     console.log(`Marcador ${i+1} detectado`);
                     activeMarker = i;
                     
-                    // Mostrar botón de sonido para videos
-                    if (i < 8) {
-                        soundToggle.style.display = 'block';
-                    }
-                    
-                    // Reproducir video si corresponde
-                    if (i < 8) {
-                        const video = document.querySelector(`#ar-video${i}`);
-                        if (video) {
-                            video.muted = isMuted;
-                            video.currentTime = 0;
-                            video.play().catch(e => {
-                                console.log("Error reproduciendo video:", e);
-                                video.muted = true;
-                                video.play();
-                            });
-                        }
-                    }
-                    
                     // Ocultar overlay si está visible
                     videoOverlay.style.display = 'none';
                     overlayVideo.pause();
+                    
+                    // Reproducir video si corresponde
+                    const video = document.getElementById(`ar-video${i}`);
+                    const plane = marker.querySelector('a-plane');
+                    
+                    if (video && plane) {
+                        // **CORRECCIÓN: Configurar el material correctamente**
+                        plane.setAttribute('material', {
+                            src: `#ar-video${i}`,
+                            side: 'double',
+                            shader: 'flat',
+                            transparent: false,
+                            opacity: 1
+                        });
+                        
+                        // Actualizar el sonido y reproducir
+                        video.muted = isMuted;
+                        video.currentTime = 0;
+                        
+                        // Intentar reproducir
+                        const playVideo = () => {
+                            video.play().then(() => {
+                                console.log(`Video ${i+1} reproduciéndose`);
+                            }).catch(error => {
+                                console.warn(`Autoplay bloqueado en video ${i+1}:`, error);
+                                video.muted = true;
+                                video.play().catch(e => {
+                                    console.error(`Error grave en video ${i+1}:`, e);
+                                });
+                            });
+                        };
+                        
+                        // Pequeño delay para asegurar que todo esté listo
+                        setTimeout(playVideo, 100);
+                    }
+                    
+                    // Mostrar instrucción
+                    const instructions = document.getElementById('arInstructions');
+                    const instructionText = document.getElementById('arInstructionText');
+                    instructionText.textContent = `${t.markerNames[i]}`;
+                    instructions.style.display = 'block';
+                    
+                    // Ocultar después de 2 segundos
+                    setTimeout(() => {
+                        if (activeMarker === i) {
+                            instructions.style.display = 'none';
+                        }
+                    }, 2000);
                 });
                 
                 // Cuando se pierde el marcador
@@ -701,43 +738,29 @@
                     console.log(`Marcador ${i+1} perdido`);
                     
                     // Pausar video
-                    if (i < 8) {
-                        const video = document.querySelector(`#ar-video${i}`);
-                        if (video) {
-                            video.pause();
-                        }
+                    const video = document.getElementById(`ar-video${i}`);
+                    if (video) {
+                        video.pause();
                     }
                     
-                    // Mostrar overlay si no hay marcadores visibles
+                    // Mostrar overlay si estaba reproduciendo
+                    if (video && video.currentTime > 0 && video.duration > 0) {
+                        showVideoInOverlay(i, video.currentTime);
+                    }
+                    
+                    // Restaurar instrucciones generales
                     setTimeout(() => {
-                        let anyVisible = false;
-                        for (let j = 0; j < 9; j++) {
-                            const m = document.querySelector(`#ar-target${j}`);
-                            if (m && m.getAttribute('visible')) {
-                                anyVisible = true;
-                                break;
-                            }
+                        const anyMarkerVisible = checkAnyMarkerVisible();
+                        if (!anyMarkerVisible) {
+                            const instructionText = document.getElementById('arInstructionText');
+                            instructionText.textContent = t.arInstruction;
+                            document.getElementById('arInstructions').style.display = 'block';
                         }
-                        
-                        if (!anyVisible && i < 8) {
-                            // Mostrar video en pantalla completa
-                            overlayVideo.src = videoSources[i];
-                            overlayVideo.muted = isMuted;
-                            overlayVideo.currentTime = 0;
-                            overlayVideo.play().catch(e => {
-                                overlayVideo.muted = true;
-                                overlayVideo.play();
-                            });
-                            videoOverlay.style.display = 'flex';
-                            
-                            // Ocultar botón de sonido
-                            soundToggle.style.display = 'none';
-                        }
-                    }, 100);
+                    }, 300);
                 });
             }
             
-            // Configurar overlay video para loop
+            // Configurar overlay video
             overlayVideo.addEventListener('ended', function() {
                 this.currentTime = 0;
                 this.play();
@@ -748,7 +771,44 @@
                 if (e.target === videoOverlay) {
                     videoOverlay.style.display = 'none';
                     overlayVideo.pause();
+                    overlayVideo.currentTime = 0;
                 }
+            });
+        }
+        
+        // =================== FUNCIONES AUXILIARES ===================
+        function checkAnyMarkerVisible() {
+            for (let i = 0; i < 9; i++) {
+                const marker = document.getElementById(`ar-target${i}`);
+                if (marker && marker.getAttribute('visible')) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function showVideoInOverlay(index, currentTime) {
+            console.log(`Mostrando video ${index+1} en overlay`);
+            
+            const overlayVideo = document.getElementById('overlayVideo');
+            const videoOverlay = document.getElementById('videoOverlay');
+            
+            // Configurar overlay
+            overlayVideo.src = videoSources[index];
+            overlayVideo.currentTime = currentTime || 0;
+            overlayVideo.muted = isMuted;
+            overlayVideo.loop = true;
+            
+            // Mostrar overlay
+            videoOverlay.style.display = 'flex';
+            
+            // Reproducir
+            overlayVideo.play().catch(error => {
+                console.warn("Autoplay overlay bloqueado:", error);
+                overlayVideo.muted = true;
+                overlayVideo.play().catch(e => {
+                    console.error("Error grave overlay:", e);
+                });
             });
         }
         
@@ -758,9 +818,9 @@
             const btn = document.getElementById('soundToggle');
             const t = translations[currentLang];
             
-            // Actualizar todos los videos
-            for (let i = 0; i < 8; i++) {
-                const video = document.querySelector(`#ar-video${i}`);
+            // Actualizar todos los videos AR
+            for (let i = 0; i < 9; i++) {
+                const video = document.getElementById(`ar-video${i}`);
                 if (video) {
                     video.muted = isMuted;
                 }
@@ -782,13 +842,19 @@
         
         function exitExperience() {
             // Pausar todos los videos
-            for (let i = 0; i < 8; i++) {
-                const video = document.querySelector(`#ar-video${i}`);
-                if (video) video.pause();
+            for (let i = 0; i < 9; i++) {
+                const video = document.getElementById(`ar-video${i}`);
+                if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
             }
             
             const overlayVideo = document.getElementById('overlayVideo');
-            if (overlayVideo) overlayVideo.pause();
+            if (overlayVideo) {
+                overlayVideo.pause();
+                overlayVideo.currentTime = 0;
+            }
             
             // Ocultar todo
             document.getElementById('ar-scene').style.display = 'none';
@@ -797,9 +863,30 @@
             document.getElementById('exitBtn').style.display = 'none';
             document.getElementById('arInstructions').style.display = 'none';
             
+            // Limpiar escena AR
+            const sceneContainer = document.getElementById('ar-scene');
+            sceneContainer.innerHTML = '';
+            
             // Mostrar pantalla de idioma
             document.getElementById('languageScreen').style.display = 'flex';
         }
+        
+        // =================== MANEJO DE ERRORES ===================
+        window.addEventListener('error', function(event) {
+            console.error("Error global:", event.error);
+        });
+        
+        // Manejar cuando la página se cierra o se cambia de pestaña
+        window.addEventListener('beforeunload', function() {
+            // Pausar todos los videos
+            for (let i = 0; i < 9; i++) {
+                const video = document.getElementById(`ar-video${i}`);
+                if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            }
+        });
     </script>
 </body>
 </html>
