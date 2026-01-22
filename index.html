@@ -23,22 +23,22 @@
         }
 
         /* Pantalla de inicio */
-        .start-screen {
+        .screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             padding: 20px;
+            transition: opacity 0.5s;
         }
 
-        .start-content {
+        .screen-content {
             text-align: center;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -48,23 +48,24 @@
             max-width: 90%;
         }
 
-        .start-title {
+        .screen-title {
             font-size: 2.5rem;
             color: white;
             margin-bottom: 15px;
             font-weight: bold;
         }
 
-        .start-subtitle {
+        .screen-text {
             font-size: 1.2rem;
             color: white;
             margin-bottom: 30px;
             opacity: 0.9;
+            line-height: 1.5;
         }
 
-        .start-btn {
+        .screen-btn {
             background: white;
-            color: #667eea;
+            color: #4A00E0;
             border: none;
             padding: 15px 40px;
             font-size: 1.3rem;
@@ -75,106 +76,24 @@
             margin: 10px;
         }
 
-        .start-btn:hover {
+        .screen-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        /* Pantalla de permisos */
-        .permission-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9998;
-            display: none;
-            padding: 20px;
+        .screen-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        .permission-content {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            border: 2px solid white;
-            max-width: 90%;
-        }
-
-        .permission-title {
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .permission-text {
-            color: white;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            line-height: 1.5;
-        }
-
-        .permission-btn {
-            background: white;
-            color: #4A00E0;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.3rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .permission-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* Pantalla de carga */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9997;
-            display: none;
-        }
-
-        .loading-content {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            border: 2px solid white;
-            max-width: 90%;
-        }
-
-        .loading-title {
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 20px;
-        }
-
+        /* Barra de carga */
         .loading-bar {
             width: 300px;
             height: 10px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 5px;
             overflow: hidden;
-            margin: 20px 0;
+            margin: 30px auto;
         }
 
         .loading-progress {
@@ -182,13 +101,6 @@
             width: 0%;
             background: white;
             transition: width 0.3s ease;
-        }
-
-        .loading-message {
-            color: white;
-            font-size: 1rem;
-            margin-top: 15px;
-            min-height: 24px;
         }
 
         /* Controles */
@@ -275,8 +187,8 @@
             z-index: 1003;
         }
 
-        /* Instrucciones */
-        .instructions {
+        /* Estado */
+        .status {
             position: fixed;
             top: 20px;
             left: 0;
@@ -286,7 +198,7 @@
             display: none;
         }
 
-        .instructions-box {
+        .status-box {
             background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 10px 25px;
@@ -296,17 +208,31 @@
             border: 2px solid white;
         }
 
+        /* Debug */
+        .debug {
+            position: fixed;
+            top: 60px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1003;
+            display: none;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
-            .start-title, .permission-title, .loading-title {
+            .screen-title {
                 font-size: 1.8rem;
             }
             
-            .start-subtitle {
+            .screen-text {
                 font-size: 1rem;
             }
             
-            .start-btn, .permission-btn {
+            .screen-btn {
                 padding: 12px 30px;
                 font-size: 1.1rem;
             }
@@ -320,7 +246,7 @@
                 width: 250px;
             }
             
-            .start-content, .permission-content, .loading-content {
+            .screen-content {
                 padding: 30px 20px;
             }
         }
@@ -333,44 +259,66 @@
 </head>
 <body>
     <!-- Pantalla de inicio -->
-    <div class="start-screen" id="startScreen">
-        <div class="start-content">
-            <h1 class="start-title">🌴 AR TROPICAL EXPERIENCE</h1>
-            <div class="start-subtitle">
+    <div class="screen" id="startScreen">
+        <div class="screen-content">
+            <h1 class="screen-title">🌴 AR TROPICAL</h1>
+            <div class="screen-text">
                 7 Marcadores AR • 7 Videos Diferentes<br>
                 Escanea cualquier marcador para comenzar
             </div>
-            <button class="start-btn" id="startBtn">
+            <button class="screen-btn" id="startBtn">
                 INICIAR EXPERIENCIA AR
             </button>
         </div>
     </div>
 
     <!-- Pantalla de permisos -->
-    <div class="permission-screen" id="permissionScreen">
-        <div class="permission-content">
-            <h1 class="permission-title">📸 Permiso de Cámara</h1>
-            <div class="permission-text">
+    <div class="screen" id="permissionScreen" style="display: none; background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);">
+        <div class="screen-content">
+            <h1 class="screen-title">📸 Permiso de Cámara</h1>
+            <div class="screen-text">
                 Necesitamos acceso a tu cámara para activar la Realidad Aumentada.<br><br>
                 <strong>IMPORTANTE:</strong> La cámara solo se usa para detectar los marcadores.<br>
                 No grabamos ni almacenamos ningún video.
             </div>
-            <button class="permission-btn" id="permissionBtn">
+            <button class="screen-btn" id="permissionBtn">
                 PERMITIR ACCESO A LA CÁMARA
             </button>
+            <div class="screen-text" style="font-size: 0.9rem; margin-top: 20px;">
+                Si el permiso no aparece, actualiza la página y vuelve a intentarlo.
+            </div>
         </div>
     </div>
 
     <!-- Pantalla de carga -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-content">
-            <h1 class="loading-title">CARGANDO EXPERIENCIA AR</h1>
+    <div class="screen" id="loadingScreen" style="display: none; background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);">
+        <div class="screen-content">
+            <h1 class="screen-title">CARGANDO</h1>
             <div class="loading-bar">
                 <div class="loading-progress" id="loadingProgress"></div>
             </div>
-            <div class="loading-message" id="loadingMessage">
-                Preparando sistema AR...
+            <div class="screen-text" id="loadingMessage">
+                Iniciando sistema AR...
             </div>
+            <div class="screen-text" style="font-size: 0.9rem; color: #FFD700;">
+                <span id="debugInfo">Esperando...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de error -->
+    <div class="screen" id="errorScreen" style="display: none; background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);">
+        <div class="screen-content">
+            <h1 class="screen-title">⚠️ ERROR</h1>
+            <div class="screen-text" id="errorMessage">
+                Ocurrió un error al cargar la experiencia AR.
+            </div>
+            <button class="screen-btn" id="retryBtn" style="background: white; color: #FF416C;">
+                REINTENTAR
+            </button>
+            <button class="screen-btn" id="homeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white;">
+                VOLVER AL INICIO
+            </button>
         </div>
     </div>
 
@@ -386,11 +334,16 @@
         </button>
     </div>
 
-    <!-- Instrucciones -->
-    <div class="instructions" id="instructions">
-        <div class="instructions-box">
+    <!-- Estado -->
+    <div class="status" id="status">
+        <div class="status-box">
             📱 Escanea uno de los 7 marcadores
         </div>
+    </div>
+
+    <!-- Debug -->
+    <div class="debug" id="debug">
+        Estado: Iniciando...
     </div>
 
     <!-- Video overlay -->
@@ -410,8 +363,12 @@
         let currentMarkerIndex = null;
         let markerVideos = [];
         let cameraStream = null;
+        let isARActive = false;
         
-        // Lista de 7 videos (AJUSTA ESTAS RUTAS A TUS VIDEOS)
+        // Debug mode
+        const DEBUG = true;
+        
+        // Lista de 7 videos (AJUSTA ESTAS RUTAS)
         const videoSources = [
             './videos/video1.mp4',
             './videos/video2.mp4', 
@@ -430,13 +387,17 @@
         
         // =================== INICIALIZACIÓN ===================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("Página cargada - Inicializando AR");
+            log("Página cargada - Inicializando AR");
+            
+            // Mostrar debug si está activado
+            if (DEBUG) {
+                document.getElementById('debug').style.display = 'block';
+            }
             
             // Botón de inicio
             document.getElementById('startBtn').addEventListener('click', () => {
-                console.log("Iniciando experiencia AR");
-                document.getElementById('startScreen').style.display = 'none';
-                document.getElementById('permissionScreen').style.display = 'flex';
+                log("Iniciando experiencia AR");
+                showScreen('permissionScreen');
             });
             
             // Botón de permisos
@@ -457,155 +418,263 @@
                 }
             });
             
-            // Verificar que tenemos los archivos necesarios
-            checkRequiredFiles();
+            // Botones de error
+            document.getElementById('retryBtn').addEventListener('click', () => {
+                showScreen('startScreen');
+                setTimeout(() => {
+                    document.getElementById('startBtn').click();
+                }, 500);
+            });
+            
+            document.getElementById('homeBtn').addEventListener('click', () => {
+                showScreen('startScreen');
+            });
+            
+            // Verificar compatibilidad
+            checkCompatibility();
         });
         
-        // =================== VERIFICACIÓN DE ARCHIVOS ===================
-        function checkRequiredFiles() {
-            console.log("Verificando archivos necesarios:");
-            console.log("1. marker.mind (debe tener 7 marcadores)");
-            console.log("2. 7 videos en carpeta videos/");
-            console.log("   - video1.mp4");
-            console.log("   - video2.mp4");
-            console.log("   - video3.mp4");
-            console.log("   - video4.mp4");
-            console.log("   - video5.mp4");
-            console.log("   - video6.mp4");
-            console.log("   - video7.mp4");
+        // =================== FUNCIONES UTILITARIAS ===================
+        function log(message) {
+            if (DEBUG) {
+                console.log(`[AR] ${message}`);
+                document.getElementById('debug').textContent = `[AR] ${message}`;
+            }
+        }
+        
+        function showScreen(screenId) {
+            // Ocultar todas las pantallas
+            ['startScreen', 'permissionScreen', 'loadingScreen', 'errorScreen'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            
+            // Mostrar la pantalla solicitada
+            document.getElementById(screenId).style.display = 'flex';
+            log(`Mostrando pantalla: ${screenId}`);
+        }
+        
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            showScreen('errorScreen');
+        }
+        
+        function updateLoading(message, progress = null) {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const loadingProgress = document.getElementById('loadingProgress');
+            const debugInfo = document.getElementById('debugInfo');
+            
+            loadingMessage.textContent = message;
+            debugInfo.textContent = message;
+            
+            if (progress !== null) {
+                loadingProgress.style.width = `${progress}%`;
+            }
+            
+            log(`Carga: ${message} (${progress || '?'}%)`);
+        }
+        
+        // =================== COMPATIBILIDAD ===================
+        function checkCompatibility() {
+            log("Verificando compatibilidad...");
+            
+            // Verificar A-Frame
+            if (!window.AFRAME) {
+                showError("Error: A-Frame no se cargó correctamente. Verifica tu conexión a internet.");
+                return false;
+            }
+            
+            // Verificar MindAR
+            if (!window.MINDAR) {
+                showError("Error: MindAR no se cargó correctamente. Verifica tu conexión a internet.");
+                return false;
+            }
+            
+            // Verificar getUserMedia
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showError("Tu navegador no soporta acceso a la cámara. Prueba con Chrome o Safari.");
+                return false;
+            }
+            
+            // Verificar que los videos existan (intento de carga)
+            checkVideoFiles();
+            
+            return true;
+        }
+        
+        async function checkVideoFiles() {
+            log("Verificando archivos de video...");
+            
+            for (let i = 0; i < videoSources.length; i++) {
+                try {
+                    const response = await fetch(videoSources[i], { method: 'HEAD' });
+                    if (response.ok) {
+                        log(`✓ Video ${i+1} encontrado: ${videoSources[i]}`);
+                    } else {
+                        log(`⚠ Video ${i+1} no encontrado: ${videoSources[i]}`);
+                    }
+                } catch (error) {
+                    log(`✗ Error verificando video ${i+1}: ${error.message}`);
+                }
+            }
         }
         
         // =================== PERMISOS DE CÁMARA ===================
         async function requestCameraPermission() {
-            console.log("Solicitando permiso de cámara...");
+            log("Solicitando permiso de cámara...");
             const permissionBtn = document.getElementById('permissionBtn');
             
             try {
-                // Cambiar texto del botón
                 permissionBtn.textContent = "SOLICITANDO...";
                 permissionBtn.disabled = true;
                 
                 // Intentar acceder a la cámara
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
+                        facingMode: { ideal: 'environment' },
+                        width: { ideal: 1280, max: 1920 },
+                        height: { ideal: 720, max: 1080 }
                     },
                     audio: false 
                 });
                 
-                // Guardar el stream para detenerlo después
+                // Guardar el stream
                 cameraStream = stream;
                 
-                console.log("✅ Permiso de cámara concedido");
-                
-                // Cambiar texto del botón
+                log("✓ Permiso de cámara concedido");
                 permissionBtn.textContent = "¡PERMITIDO!";
                 permissionBtn.style.background = "#4CAF50";
                 
                 // Proceder a la carga
                 setTimeout(() => {
                     startLoading();
-                }, 1000);
+                }, 800);
                 
             } catch (error) {
-                console.error("❌ Error al acceder a la cámara:", error);
+                log(`✗ Error de cámara: ${error.name} - ${error.message}`);
                 
-                // Manejar diferentes tipos de errores
                 let errorMessage = "No se pudo acceder a la cámara. ";
                 
                 if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    errorMessage += "Permiso denegado. Por favor, permite el acceso a la cámara en la configuración de tu navegador.";
-                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    errorMessage += "No se encontró ninguna cámara.";
+                    errorMessage = "Permiso denegado. Por favor, permite el acceso a la cámara en la configuración de tu navegador.";
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = "No se encontró ninguna cámara en tu dispositivo.";
                 } else if (error.name === 'NotSupportedError') {
-                    errorMessage += "Tu navegador no soporta acceso a la cámara.";
-                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                    errorMessage += "La cámara está siendo usada por otra aplicación.";
+                    errorMessage = "Tu navegador no soporta acceso a la cámara.";
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage = "La cámara está siendo usada por otra aplicación.";
+                } else if (error.name === 'OverconstrainedError') {
+                    errorMessage = "La cámara no soporta los requisitos necesarios.";
                 } else {
                     errorMessage += error.message;
                 }
                 
-                // Restaurar botón
                 permissionBtn.textContent = "REINTENTAR";
                 permissionBtn.disabled = false;
                 permissionBtn.style.background = "#FF5722";
                 
-                // Mostrar alerta
-                alert(errorMessage);
-                
-                // Permitir reintentar
-                permissionBtn.onclick = requestCameraPermission;
+                showError(errorMessage);
             }
         }
         
         // =================== CARGA ===================
-        function startLoading() {
-            console.log("Iniciando carga...");
+        async function startLoading() {
+            log("Iniciando carga completa...");
+            showScreen('loadingScreen');
             
-            // Ocultar pantalla de permisos
-            document.getElementById('permissionScreen').style.display = 'none';
-            
-            // Mostrar pantalla de carga
-            document.getElementById('loadingScreen').style.display = 'flex';
-            
-            // Iniciar barra de carga
-            simulateLoading();
+            try {
+                // Fase 1: Cargar videos (0-50%)
+                await loadVideos(0, 50);
+                
+                // Fase 2: Inicializar AR (50-100%)
+                await initARScene(50, 100);
+                
+            } catch (error) {
+                log(`✗ Error durante la carga: ${error.message}`);
+                showError(`Error al cargar: ${error.message}`);
+            }
         }
         
-        function simulateLoading() {
-            let progress = 0;
-            const progressBar = document.getElementById('loadingProgress');
-            const loadingMessage = document.getElementById('loadingMessage');
+        async function loadVideos(startProgress, endProgress) {
+            log(`Cargando videos (${startProgress}-${endProgress}%)`);
             
-            const messages = [
-                "Inicializando sistema AR...",
-                "Cargando marcadores...",
-                "Precargando videos...",
-                "Configurando escena 3D...",
-                "¡Listo para comenzar!"
-            ];
+            const totalVideos = videoSources.length;
+            let loadedCount = 0;
             
-            const interval = setInterval(() => {
-                progress += 2;
-                if (progress > 100) progress = 100;
+            return new Promise((resolve, reject) => {
+                const checkProgress = () => {
+                    const progress = startProgress + (loadedCount / totalVideos) * (endProgress - startProgress);
+                    updateLoading(`Cargando videos: ${loadedCount}/${totalVideos}`, progress);
+                    
+                    if (loadedCount >= totalVideos) {
+                        log("✓ Todos los videos cargados");
+                        resolve();
+                    }
+                };
                 
-                progressBar.style.width = progress + '%';
+                videoSources.forEach((src, index) => {
+                    const video = document.createElement('video');
+                    video.preload = 'auto';
+                    video.crossOrigin = 'anonymous';
+                    video.playsInline = true;
+                    video.webkitPlaysInline = true;
+                    video.muted = true;
+                    
+                    video.addEventListener('loadeddata', () => {
+                        loadedCount++;
+                        log(`✓ Video ${index+1} cargado: ${video.videoWidth}x${video.videoHeight}`);
+                        checkProgress();
+                    });
+                    
+                    video.addEventListener('error', (e) => {
+                        log(`⚠ Error cargando video ${index+1} (${src}): ${e.message}`);
+                        loadedCount++; // Contar como cargado para continuar
+                        checkProgress();
+                    });
+                    
+                    video.src = src;
+                });
                 
-                // Cambiar mensaje según progreso
-                if (progress < 20) {
-                    loadingMessage.textContent = messages[0];
-                } else if (progress < 40) {
-                    loadingMessage.textContent = messages[1];
-                } else if (progress < 60) {
-                    loadingMessage.textContent = messages[2];
-                } else if (progress < 80) {
-                    loadingMessage.textContent = messages[3];
-                } else {
-                    loadingMessage.textContent = messages[4];
-                }
-                
-                // Cuando llegue al 100%, iniciar la escena AR
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(initARScene, 500);
-                }
-            }, 40);
+                // Timeout de seguridad
+                setTimeout(() => {
+                    if (loadedCount < totalVideos) {
+                        log(`⚠ Timeout: Solo ${loadedCount}/${totalVideos} videos cargados`);
+                        resolve(); // Continuar de todos modos
+                    }
+                }, 15000);
+            });
         }
         
-        // =================== ESCENA AR ===================
-        function initARScene() {
-            console.log("Inicializando escena AR con 7 marcadores...");
+        async function initARScene(startProgress, endProgress) {
+            log(`Inicializando AR (${startProgress}-${endProgress}%)`);
+            updateLoading("Creando escena AR...", startProgress);
             
-            // Ocultar pantalla de carga
-            document.getElementById('loadingScreen').style.display = 'none';
-            
-            // Crear escena AR con 7 marcadores
-            createARScene();
+            return new Promise((resolve) => {
+                // Crear escena AR
+                createARScene();
+                
+                // Simular progreso
+                let progress = startProgress;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    if (progress > endProgress) {
+                        clearInterval(interval);
+                        updateLoading("¡Listo!", endProgress);
+                        
+                        // Mostrar AR después de un breve retraso
+                        setTimeout(() => {
+                            showARScene();
+                            resolve();
+                        }, 500);
+                    } else {
+                        updateLoading("Configurando marcadores...", progress);
+                    }
+                }, 100);
+            });
         }
         
         function createARScene() {
+            log("Creando escena AR...");
+            
             // Crear HTML para los assets (videos)
             let assetsHTML = '';
             let targetsHTML = '';
@@ -625,7 +694,7 @@
                     ></video>
                 `;
                 
-                // Crear marcador con video
+                // Crear marcador - Ajustamos el tamaño para que sea visible
                 targetsHTML += `
                     <a-entity 
                         id="ar-target${i}" 
@@ -637,9 +706,8 @@
                             rotation="0 0 0"
                             height="0.75"
                             width="1"
-                            material="side: double; transparent: false"
-                        >
-                        </a-plane>
+                            material="side: double; transparent: false; shader: flat"
+                        ></a-plane>
                     </a-entity>
                 `;
             }
@@ -647,12 +715,12 @@
             // Crear escena completa de A-Frame
             const arSceneHTML = `
                 <a-scene 
-                    mindar-image="imageTargetSrc: ./marker.mind; autoStart: true; uiScanning: no; uiLoading: no; uiError: no;" 
+                    mindar-image="imageTargetSrc: ./marker.mind; autoStart: true; maxTrack: 2; uiScanning: no; uiLoading: no; uiError: no;" 
                     vr-mode-ui="enabled: false"
                     device-orientation-permission-ui="enabled: false"
                     embedded
                     loading-screen="enabled: false"
-                    renderer="colorManagement: true; precision: high; alpha: true"
+                    renderer="colorManagement: true; precision: mediump; alpha: true; antialias: true"
                 >
                     <a-assets>
                         ${assetsHTML}
@@ -665,25 +733,42 @@
                     ></a-camera>
                     
                     ${targetsHTML}
+                    
+                    <!-- Luz ambiental -->
+                    <a-light type="ambient" color="#FFFFFF" intensity="0.8"></a-light>
+                    <a-light type="directional" position="0 5 5" intensity="0.5"></a-light>
                 </a-scene>
             `;
             
-            // Insertar la escena en el div
+            // Insertar la escena
             document.getElementById('ar-scene').innerHTML = arSceneHTML;
-            
-            // Mostrar la escena
-            document.getElementById('ar-scene').style.display = 'block';
-            
-            // Mostrar controles e instrucciones
-            document.getElementById('controls').style.display = 'flex';
-            document.getElementById('instructions').style.display = 'block';
-            
-            // Configurar eventos después de un breve retraso
-            setTimeout(setupAREvents, 1500);
+            log("Escena AR creada");
         }
         
+        function showARScene() {
+            log("Mostrando escena AR");
+            
+            // Ocultar pantalla de carga
+            document.getElementById('loadingScreen').style.display = 'none';
+            
+            // Mostrar la escena AR
+            document.getElementById('ar-scene').style.display = 'block';
+            
+            // Mostrar controles y estado
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('status').style.display = 'block';
+            
+            isARActive = true;
+            
+            // Configurar eventos después de un breve retraso
+            setTimeout(() => {
+                setupAREvents();
+            }, 1000);
+        }
+        
+        // =================== EVENTOS AR ===================
         function setupAREvents() {
-            console.log("Configurando eventos AR...");
+            log("Configurando eventos AR...");
             
             // Obtener referencias a todos los videos AR
             markerVideos = [];
@@ -691,8 +776,6 @@
                 const video = document.querySelector(`#ar-video${i}`);
                 if (video) {
                     markerVideos.push(video);
-                    
-                    // Configurar eventos para cada video
                     setupVideoEvents(video, i);
                 }
             }
@@ -708,47 +791,32 @@
             // Configurar el video overlay
             setupOverlayVideo();
             
-            console.log("✅ Eventos AR configurados correctamente");
+            log("✓ Eventos AR configurados");
         }
         
         function setupVideoEvents(video, index) {
-            // Cuando el video se carga
             video.addEventListener('loadeddata', () => {
-                console.log(`✅ Video ${index + 1} cargado: ${video.videoWidth}x${video.videoHeight}`);
+                log(`Video ${index+1} listo: ${video.videoWidth}x${video.videoHeight}`);
             });
             
-            // Cuando hay error en el video
             video.addEventListener('error', (e) => {
-                console.error(`❌ Error en video ${index + 1}:`, e);
-                console.log(`Verifica que el archivo exista: ${videoSources[index]}`);
-                
-                // Intentar cargar un video de prueba si hay error
-                if (index === 0) {
-                    video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-                }
+                log(`Error video ${index+1}: ${e.message}`);
             });
             
-            // Cuando termina el video, reiniciar
             video.addEventListener('ended', () => {
                 video.currentTime = 0;
-                video.play();
-            });
-            
-            // Forzar reproducción cuando sea posible
-            video.addEventListener('canplay', () => {
-                if (document.querySelector(`#ar-target${index}`)?.getAttribute('visible')) {
-                    video.play().catch(e => console.log(`Video ${index} no puede autoplay:`, e));
-                }
+                video.play().catch(e => {
+                    // Ignorar errores de autoplay
+                });
             });
         }
         
         function setupMarkerEvents(marker, index) {
-            // Cuando se detecta el marcador
             marker.addEventListener('targetFound', () => {
-                console.log(`🎯 Marcador ${index + 1} detectado: ${markerNames[index]}`);
+                log(`🎯 Marcador ${index+1} detectado`);
                 currentMarkerIndex = index;
                 
-                // Ocultar overlay si está visible
+                // Ocultar overlay
                 document.getElementById('videoOverlay').style.display = 'none';
                 const overlayVideo = document.getElementById('overlayVideo');
                 if (overlayVideo) {
@@ -757,48 +825,47 @@
                 
                 // Reproducir el video correspondiente
                 if (markerVideos[index]) {
-                    console.log(`▶️ Reproduciendo video ${index + 1}`);
-                    markerVideos[index].muted = isMuted;
-                    markerVideos[index].currentTime = 0;
+                    const video = markerVideos[index];
+                    video.muted = isMuted;
+                    video.currentTime = 0;
                     
-                    // Intentar reproducir
-                    markerVideos[index].play().catch(error => {
-                        console.warn(`⚠️ No se pudo autoplay video ${index + 1}:`, error);
-                        // Intentar con mute
-                        markerVideos[index].muted = true;
-                        markerVideos[index].play().catch(e => {
-                            console.error(`❌ Error grave en video ${index + 1}:`, e);
+                    video.play().catch(error => {
+                        log(`⚠ No autoplay video ${index+1}: ${error.message}`);
+                        // Silenciar y reintentar
+                        video.muted = true;
+                        video.play().catch(e => {
+                            log(`✗ Error grave video ${index+1}: ${e.message}`);
                         });
                     });
                 }
                 
-                // Actualizar instrucciones
-                document.getElementById('instructions').innerHTML = `
-                    <div class="instructions-box">
+                // Actualizar estado
+                document.getElementById('status').innerHTML = `
+                    <div class="status-box">
                         🎬 Reproduciendo: ${markerNames[index]}
                     </div>
                 `;
             });
             
-            // Cuando se pierde el marcador
             marker.addEventListener('targetLost', () => {
-                console.log(`📭 Marcador ${index + 1} perdido`);
+                log(`Marcador ${index+1} perdido`);
                 
                 // Pausar el video AR
                 if (markerVideos[index]) {
+                    const currentTime = markerVideos[index].currentTime;
                     markerVideos[index].pause();
                     
-                    // Si hay tiempo de reproducción, continuar en overlay
-                    if (markerVideos[index].currentTime > 0) {
-                        showVideoInOverlay(index);
+                    // Si estaba reproduciendo, mostrar en overlay
+                    if (currentTime > 0 && currentTime < markerVideos[index].duration - 1) {
+                        showVideoInOverlay(index, currentTime);
                     }
                 }
                 
-                // Restaurar instrucciones originales
+                // Restaurar estado original
                 setTimeout(() => {
                     if (!document.querySelector(`#ar-target${index}`)?.getAttribute('visible')) {
-                        document.getElementById('instructions').innerHTML = `
-                            <div class="instructions-box">
+                        document.getElementById('status').innerHTML = `
+                            <div class="status-box">
                                 📱 Escanea uno de los 7 marcadores
                             </div>
                         `;
@@ -807,20 +874,14 @@
             });
         }
         
-        function showVideoInOverlay(index) {
-            console.log(`🔄 Mostrando video ${index + 1} en overlay`);
+        function showVideoInOverlay(index, currentTime) {
+            log(`Mostrando video ${index+1} en overlay`);
             
             const overlayVideo = document.getElementById('overlayVideo');
             
-            // Si ya está mostrando este video, no hacer nada
-            if (overlayVideo.src.includes(`video${index + 1}`) && 
-                document.getElementById('videoOverlay').style.display === 'flex') {
-                return;
-            }
-            
             // Configurar el video overlay
             overlayVideo.src = videoSources[index];
-            overlayVideo.currentTime = markerVideos[index]?.currentTime || 0;
+            overlayVideo.currentTime = currentTime || 0;
             overlayVideo.muted = isMuted;
             overlayVideo.loop = true;
             
@@ -829,10 +890,10 @@
             
             // Intentar reproducir
             overlayVideo.play().catch(error => {
-                console.warn("⚠️ No se pudo autoplay overlay:", error);
+                log(`⚠ No autoplay overlay: ${error.message}`);
                 overlayVideo.muted = true;
                 overlayVideo.play().catch(e => {
-                    console.error("❌ Error grave en overlay:", e);
+                    log(`✗ Error grave overlay: ${e.message}`);
                 });
             });
         }
@@ -840,15 +901,13 @@
         function setupOverlayVideo() {
             const overlayVideo = document.getElementById('overlayVideo');
             
-            // Reiniciar cuando termina
             overlayVideo.addEventListener('ended', function() {
                 this.currentTime = 0;
                 this.play();
             });
             
-            // Manejar errores
             overlayVideo.addEventListener('error', function(e) {
-                console.error("❌ Error en overlay video:", e);
+                log(`Error overlay video: ${e.message}`);
             });
             
             // Click en overlay para cerrar
@@ -866,7 +925,7 @@
             const soundIcon = document.getElementById('soundIcon');
             const soundText = document.getElementById('soundText');
             
-            console.log(`🔊 Sonido: ${isMuted ? 'OFF' : 'ON'}`);
+            log(`Sonido: ${isMuted ? 'OFF' : 'ON'}`);
             
             // Actualizar todos los videos AR
             markerVideos.forEach((video, index) => {
@@ -892,7 +951,7 @@
         }
         
         function restartExperience() {
-            console.log("Reiniciando experiencia...");
+            log("Reiniciando experiencia...");
             
             // Pausar todos los videos
             markerVideos.forEach(video => {
@@ -903,7 +962,7 @@
             const overlayVideo = document.getElementById('overlayVideo');
             if (overlayVideo) overlayVideo.pause();
             
-            // Detener stream de cámara si existe
+            // Detener stream de cámara
             if (cameraStream) {
                 cameraStream.getTracks().forEach(track => track.stop());
                 cameraStream = null;
@@ -913,27 +972,28 @@
             document.getElementById('ar-scene').style.display = 'none';
             document.getElementById('videoOverlay').style.display = 'none';
             document.getElementById('controls').style.display = 'none';
-            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('status').style.display = 'none';
             
             // Limpiar escena
             document.getElementById('ar-scene').innerHTML = '';
-            
-            // Mostrar pantalla de inicio
-            document.getElementById('startScreen').style.display = 'flex';
             
             // Resetear estado
             isMuted = true;
             currentMarkerIndex = null;
             markerVideos = [];
+            isARActive = false;
             
             // Actualizar botón de sonido
             document.getElementById('soundIcon').textContent = '🔇';
             document.getElementById('soundText').textContent = 'SONIDO OFF';
+            
+            // Mostrar pantalla de inicio
+            showScreen('startScreen');
         }
         
-        // =================== MANEJO DE ERRORES GLOBALES ===================
+        // =================== MANEJO DE ERRORES ===================
         window.addEventListener('error', function(e) {
-            console.error('🔥 Error global:', e);
+            log(`Error global: ${e.message} en ${e.filename}:${e.lineno}`);
         });
         
         // Detectar cuando se cierra la pestaña
@@ -944,11 +1004,7 @@
         });
         
         // Log inicial
-        console.log("✅ Aplicación AR lista");
-        console.log("📁 Archivos necesarios:");
-        console.log("   - marker.mind (con 7 marcadores)");
-        console.log("   - videos/video1.mp4 a video7.mp4");
-        console.log("🌐 Requiere HTTPS para funcionar correctamente");
+        log("✅ Aplicación AR lista para iniciar");
     </script>
 </body>
 </html>
