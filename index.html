@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AR Tropical - 9 Marcadores</title>
+    <title>AR Tropical - 7 Marcadores & 7 Videos</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -22,14 +22,14 @@
             background: #000;
         }
 
-        /* Pantalla de idioma */
-        .language-screen {
+        /* Pantalla de inicio */
+        .start-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -38,7 +38,7 @@
             padding: 20px;
         }
 
-        .language-content {
+        .start-content {
             text-align: center;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -48,89 +48,36 @@
             max-width: 95%;
         }
 
-        .language-title {
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 30px;
-            font-weight: bold;
-        }
-
-        .language-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .language-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 20px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .language-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
-        /* Pantalla de permisos */
-        .camera-permission-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a2980, #26d0ce);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9998;
-            padding: 20px;
-            text-align: center;
-            display: none;
-        }
-
-        .permission-content {
-            max-width: 95%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid white;
-        }
-
-        .permission-title {
-            font-size: 2rem;
+        .start-title {
+            font-size: 2.5rem;
             color: white;
             margin-bottom: 20px;
             font-weight: bold;
         }
 
-        .permission-btn {
-            background: rgba(255, 255, 255, 0.2);
+        .start-subtitle {
+            font-size: 1.2rem;
             color: white;
-            border: 2px solid white;
-            padding: 20px 40px;
-            font-size: 1.5rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .start-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
             border-radius: 50px;
             cursor: pointer;
             font-weight: bold;
-            margin: 20px auto;
             transition: all 0.3s ease;
+            margin: 10px;
         }
 
-        .permission-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .start-btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         /* Pantalla de carga */
@@ -140,88 +87,77 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 9998;
             display: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid white;
+            max-width: 90%;
         }
 
         .loading-title {
             font-size: 2rem;
             color: white;
-            margin-bottom: 30px;
-            font-weight: bold;
+            margin-bottom: 20px;
         }
 
-        .loading-bar-container {
-            width: 80%;
-            max-width: 300px;
+        .loading-bar {
+            width: 300px;
             height: 10px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 5px;
             overflow: hidden;
-            margin: 20px auto;
+            margin: 20px 0;
         }
 
-        .loading-bar {
+        .loading-progress {
             height: 100%;
             width: 0%;
             background: white;
             transition: width 0.3s ease;
         }
 
-        /* Botones de control */
-        .sound-btn {
+        /* Controles */
+        .controls {
             position: fixed;
             bottom: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 50px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid white;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            z-index: 1001;
-            display: none;
-        }
-
-        .exit-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 12px 20px;
-            border-radius: 50px;
-            background: rgba(255, 50, 50, 0.7);
-            border: 2px solid white;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            z-index: 1001;
-            display: none;
-        }
-
-        /* Instrucciones AR */
-        .ar-instructions {
-            position: fixed;
-            top: 20px;
             left: 0;
             width: 100%;
-            text-align: center;
-            z-index: 1002;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 1001;
             display: none;
         }
 
-        .ar-instruction-card {
+        .control-btn {
             background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: inline-block;
-            font-weight: bold;
+            border: 2px solid white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
         }
 
         /* Escena AR */
@@ -231,9 +167,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0;
-            transition: opacity 0.5s ease;
             display: none;
+            z-index: 1000;
         }
 
         /* Video overlay */
@@ -243,81 +178,78 @@
             left: 0;
             width: 100%;
             height: 100%;
+            background: black;
             display: none;
             justify-content: center;
             align-items: center;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1003;
+            z-index: 1002;
         }
 
         .video-container {
-            width: 90%;
-            max-width: 800px;
-            background: black;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .video-container video {
-            width: 100%;
-            height: auto;
-            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
-        .close-video-btn {
+        .close-video {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            background: rgba(255, 50, 50, 0.8);
-            border: 1px solid white;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.8);
             color: white;
-            font-size: 0.9rem;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 50px;
             cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .language-title, .permission-title, .loading-title {
-                font-size: 1.5rem;
+            .start-title {
+                font-size: 2rem;
             }
             
-            .language-btn, .permission-btn {
-                padding: 15px 25px;
+            .start-subtitle {
+                font-size: 1rem;
+            }
+            
+            .start-btn {
+                padding: 12px 30px;
                 font-size: 1.1rem;
             }
             
-            .sound-btn, .exit-btn {
-                padding: 10px 15px;
+            .control-btn {
+                padding: 10px 20px;
                 font-size: 0.9rem;
+            }
+            
+            .loading-bar {
+                width: 250px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Pantalla de idioma -->
-    <div class="language-screen" id="languageScreen">
-        <div class="language-content">
-            <h1 class="language-title">🌴 AR TROPICAL</h1>
-            <div class="language-buttons">
-                <button class="language-btn" id="langEs" data-lang="es">Español</button>
-                <button class="language-btn" id="langEn" data-lang="en">English</button>
-                <button class="language-btn" id="langPt" data-lang="pt">Português</button>
+    <!-- Pantalla de inicio -->
+    <div class="start-screen" id="startScreen">
+        <div class="start-content">
+            <h1 class="start-title">🌴 AR TROPICAL EXPERIENCE</h1>
+            <div class="start-subtitle">
+                7 Marcadores AR • 7 Videos Diferentes<br>
+                Escanea cualquier marcador para comenzar
             </div>
-        </div>
-    </div>
-
-    <!-- Pantalla de permisos -->
-    <div class="camera-permission-screen" id="cameraPermissionScreen">
-        <div class="permission-content">
-            <h1 class="permission-title" id="permissionTitle">Permiso de Cámara</h1>
-            <div class="permission-description" id="permissionDescription">
-                Necesitamos acceso a tu cámara para mostrar contenido AR.
-            </div>
-            <button class="permission-btn" id="allowCameraBtn">
-                PERMITIR CÁMARA
+            <button class="start-btn" id="startBtn">
+                INICIAR EXPERIENCIA AR
             </button>
         </div>
     </div>
@@ -325,30 +257,33 @@
     <!-- Pantalla de carga -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-content">
-            <h1 class="loading-title" id="loadingTitle">Cargando...</h1>
-            <div class="loading-bar-container">
-                <div class="loading-bar" id="loadingBar"></div>
+            <h1 class="loading-title">CARGANDO EXPERIENCIA AR</h1>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
             </div>
-            <div class="loading-percentage" id="loadingPercentage">0%</div>
+            <div id="loadingText" style="color: white; font-size: 1.2rem;">
+                Preparando 7 videos...
+            </div>
         </div>
     </div>
 
-    <!-- Botones de control -->
-    <button class="sound-btn" id="soundToggle">🔇 SONIDO OFF</button>
-    <button class="exit-btn" id="exitBtn">❌ SALIR</button>
-
-    <!-- Instrucciones -->
-    <div class="ar-instructions" id="arInstructions">
-        <div class="ar-instruction-card" id="arInstructionText">
-            Escanea los marcadores (1-9)
-        </div>
+    <!-- Controles -->
+    <div class="controls" id="controls">
+        <button class="control-btn" id="soundBtn">
+            <span id="soundIcon">🔇</span>
+            <span id="soundText">SONIDO OFF</span>
+        </button>
+        <button class="control-btn" id="restartBtn">
+            <span>🔄</span>
+            <span>REINICIAR</span>
+        </button>
     </div>
 
     <!-- Video overlay -->
     <div class="video-overlay" id="videoOverlay">
         <div class="video-container">
-            <video id="overlayVideo" loop muted playsinline webkit-playsinline></video>
-            <button class="close-video-btn" id="closeVideoBtn">CERRAR</button>
+            <video id="overlayVideo" loop playsinline webkit-playsinline></video>
+            <button class="close-video" id="closeVideoBtn">✕ CERRAR</button>
         </div>
     </div>
 
@@ -357,13 +292,11 @@
 
     <script>
         // =================== CONFIGURACIÓN ===================
-        let currentLang = 'es';
-        let selectedLang = null;
         let isMuted = true;
-        let activeMarker = null;
-        let allVideos = [];
+        let currentVideoIndex = null;
+        let markerVideos = [];
         
-        // Lista de 8 videos
+        // Lista de 7 videos (cambia estas URLs por las de tus videos)
         const videoSources = [
             './videos/video1.mp4',
             './videos/video2.mp4',
@@ -371,90 +304,29 @@
             './videos/video4.mp4',
             './videos/video5.mp4',
             './videos/video6.mp4',
-            './videos/video7.mp4',
-            './videos/video8.mp4'
+            './videos/video7.mp4'
         ];
         
-        // =================== IDIOMAS SIMPLIFICADOS ===================
-        const translations = {
-            es: {
-                permissionTitle: "Permiso de Cámara",
-                permissionDescription: "Necesitamos acceso a tu cámara para mostrar contenido AR con 9 marcadores.",
-                permissionBtn: "PERMITIR CÁMARA",
-                loadingTitle: "Cargando AR...",
-                soundOff: "SONIDO OFF",
-                soundOn: "SONIDO ON",
-                exitBtn: "SALIR",
-                arInstruction: "Escanea los marcadores (1-9)",
-                markerNames: [
-                    "Marcador 1", "Marcador 2", "Marcador 3", "Marcador 4",
-                    "Marcador 5", "Marcador 6", "Marcador 7", "Marcador 8",
-                    "Marcador 9"
-                ]
-            },
-            en: {
-                permissionTitle: "Camera Permission",
-                permissionDescription: "We need camera access to show AR content with 9 markers.",
-                permissionBtn: "ALLOW CAMERA",
-                loadingTitle: "Loading AR...",
-                soundOff: "SOUND OFF",
-                soundOn: "SOUND ON",
-                exitBtn: "EXIT",
-                arInstruction: "Scan markers (1-9)",
-                markerNames: [
-                    "Marker 1", "Marker 2", "Marker 3", "Marker 4",
-                    "Marker 5", "Marker 6", "Marker 7", "Marker 8",
-                    "Marker 9"
-                ]
-            },
-            pt: {
-                permissionTitle: "Permissão de Câmera",
-                permissionDescription: "Precisamos de acesso à câmera para mostrar conteúdo AR com 9 marcadores.",
-                permissionBtn: "PERMITIR CÂMERA",
-                loadingTitle: "Carregando AR...",
-                soundOff: "SOM OFF",
-                soundOn: "SOM ON",
-                exitBtn: "SAIR",
-                arInstruction: "Escaneie os marcadores (1-9)",
-                markerNames: [
-                    "Marcador 1", "Marcador 2", "Marcador 3", "Marcador 4",
-                    "Marcador 5", "Marcador 6", "Marcador 7", "Marcador 8",
-                    "Marcador 9"
-                ]
-            }
-        };
+        // Verificar que los videos existan
+        function checkVideoSources() {
+            console.log("Verificando videos...");
+            videoSources.forEach((src, index) => {
+                console.log(`Video ${index + 1}: ${src}`);
+            });
+        }
         
         // =================== INICIALIZACIÓN ===================
         document.addEventListener('DOMContentLoaded', () => {
-            // Configurar botones de idioma
-            document.querySelectorAll('.language-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    selectedLang = e.target.dataset.lang;
-                    currentLang = selectedLang;
-                    
-                    // Ocultar pantalla de idioma
-                    document.getElementById('languageScreen').style.display = 'none';
-                    
-                    // Mostrar pantalla de permisos
-                    const permScreen = document.getElementById('cameraPermissionScreen');
-                    const t = translations[currentLang];
-                    
-                    document.getElementById('permissionTitle').textContent = t.permissionTitle;
-                    document.getElementById('permissionDescription').textContent = t.permissionDescription;
-                    document.getElementById('allowCameraBtn').textContent = t.permissionBtn;
-                    
-                    permScreen.style.display = 'flex';
-                });
-            });
+            checkVideoSources();
             
-            // Botón de permiso de cámara
-            document.getElementById('allowCameraBtn').addEventListener('click', requestCameraPermission);
+            // Botón de inicio
+            document.getElementById('startBtn').addEventListener('click', startARExperience);
             
             // Botón de sonido
-            document.getElementById('soundToggle').addEventListener('click', toggleSound);
+            document.getElementById('soundBtn').addEventListener('click', toggleSound);
             
-            // Botón de salida
-            document.getElementById('exitBtn').addEventListener('click', exitExperience);
+            // Botón de reinicio
+            document.getElementById('restartBtn').addEventListener('click', restartExperience);
             
             // Botón para cerrar video
             document.getElementById('closeVideoBtn').addEventListener('click', () => {
@@ -464,64 +336,39 @@
             });
         });
         
-        // =================== PERMISO DE CÁMARA ===================
-        async function requestCameraPermission() {
-            const btn = document.getElementById('allowCameraBtn');
-            const t = translations[currentLang];
-            
-            try {
-                btn.textContent = "SOLICITANDO...";
-                btn.disabled = true;
-                
-                // Solicitar permiso
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'environment'
-                    },
-                    audio: false 
-                });
-                
-                // Detener stream (solo necesitamos el permiso)
-                stream.getTracks().forEach(track => track.stop());
-                
-                btn.textContent = "¡PERMITIDO!";
-                
-                // Proceder a carga
-                setTimeout(() => {
-                    startLoading();
-                }, 500);
-                
-            } catch (error) {
-                console.error("Error de cámara:", error);
-                btn.textContent = "ERROR - TOCA PARA REINTENTAR";
-                btn.disabled = false;
-                alert("Por favor, permite el acceso a la cámara para usar AR.");
-            }
-        }
-        
-        // =================== CARGA ===================
-        function startLoading() {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const t = translations[currentLang];
-            
-            // Ocultar pantalla de permisos
-            document.getElementById('cameraPermissionScreen').style.display = 'none';
+        // =================== EXPERIENCIA AR ===================
+        function startARExperience() {
+            // Ocultar pantalla de inicio
+            document.getElementById('startScreen').style.display = 'none';
             
             // Mostrar pantalla de carga
-            loadingScreen.style.display = 'flex';
-            document.getElementById('loadingTitle').textContent = t.loadingTitle;
+            document.getElementById('loadingScreen').style.display = 'flex';
             
-            // Simular carga
+            // Iniciar carga
+            simulateLoading();
+        }
+        
+        function simulateLoading() {
             let progress = 0;
-            const bar = document.getElementById('loadingBar');
-            const percent = document.getElementById('loadingPercentage');
+            const progressBar = document.getElementById('loadingProgress');
+            const loadingText = document.getElementById('loadingText');
             
             const interval = setInterval(() => {
                 progress += 2;
                 if (progress > 100) progress = 100;
                 
-                bar.style.width = progress + '%';
-                percent.textContent = progress + '%';
+                progressBar.style.width = progress + '%';
+                
+                // Mensajes de carga
+                if (progress < 30) {
+                    loadingText.textContent = 'Precargando videos...';
+                } else if (progress < 60) {
+                    loadingText.textContent = 'Inicializando cámara...';
+                } else if (progress < 90) {
+                    loadingText.textContent = 'Preparando marcadores AR...';
+                } else {
+                    loadingText.textContent = '¡Listo!';
+                }
                 
                 if (progress >= 100) {
                     clearInterval(interval);
@@ -530,90 +377,57 @@
             }, 30);
         }
         
-        // =================== ESCENA AR ===================
         function initARScene() {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const arScene = document.getElementById('ar-scene');
-            const t = translations[currentLang];
-            
             // Ocultar pantalla de carga
-            loadingScreen.style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'none';
             
-            // Crear escena AR con 9 marcadores
+            // Crear escena AR con 7 marcadores
             let assetsHTML = '';
             let targetsHTML = '';
             
-            // Agregar 8 videos
-            for (let i = 0; i < 8; i++) {
+            // Agregar 7 videos a los assets
+            for (let i = 0; i < 7; i++) {
                 assetsHTML += `
                     <video 
                         id="ar-video${i}" 
                         src="${videoSources[i]}" 
                         preload="auto"
                         loop 
-                        muted 
                         playsinline 
-                        crossorigin="anonymous"
                         webkit-playsinline
+                        crossorigin="anonymous"
+                        muted
                     ></video>
                 `;
             }
             
-            // Crear 9 marcadores
-            for (let i = 0; i < 9; i++) {
+            // Crear 7 marcadores
+            for (let i = 0; i < 7; i++) {
                 targetsHTML += `
                     <a-entity 
                         id="ar-target${i}" 
                         mindar-image-target="targetIndex: ${i}"
                     >
-                `;
-                
-                if (i < 8) {
-                    // Marcadores con video
-                    targetsHTML += `
                         <a-plane
                             src="#ar-video${i}"
                             position="0 0 0"
                             rotation="0 0 0"
-                            height="0.5625"
+                            height="0.56"
                             width="1"
-                            material="shader: flat; transparent: true; opacity: 1;"
+                            material="shader: flat; side: double; transparent: false"
                         ></a-plane>
-                    `;
-                } else {
-                    // Marcador 9 (sin video)
-                    targetsHTML += `
-                        <a-plane
-                            color="#26d0ce"
-                            position="0 0 0"
-                            rotation="0 0 0"
-                            height="0.5625"
-                            width="1"
-                            material="transparent: true; opacity: 0.8;"
-                        >
-                            <a-text 
-                                value="🌟"
-                                color="white"
-                                align="center"
-                                width="3"
-                                position="0 0 0.01"
-                                scale="1 1 1"
-                            ></a-text>
-                        </a-plane>
-                    `;
-                }
-                
-                targetsHTML += `</a-entity>`;
+                    </a-entity>
+                `;
             }
             
             // Crear escena completa
-            arScene.innerHTML = `
+            document.getElementById('ar-scene').innerHTML = `
                 <a-scene 
                     mindar-image="imageTargetSrc: ./marker.mind; autoStart: true; uiScanning: no; uiLoading: no; uiError: no;" 
                     vr-mode-ui="enabled: false"
                     device-orientation-permission-ui="enabled: false"
                     permission-ui="enabled: false"
-                    renderer="colorManagement: true; alpha: true; antialias: true;"
+                    renderer="colorManagement: true; alpha: false; antialias: true; precision: medium;"
                     embedded
                     loading-screen="enabled: false"
                     keyboard-shortcuts="enterVR: false"
@@ -624,7 +438,7 @@
                     
                     <a-camera 
                         position="0 0 0" 
-                        look-controls="enabled: false"
+                        look-controls="enabled: true"
                         wasd-controls="enabled: false"
                     ></a-camera>
                     
@@ -633,139 +447,135 @@
             `;
             
             // Mostrar escena
-            arScene.style.display = 'block';
-            setTimeout(() => {
-                arScene.style.opacity = '1';
-                
-                // Mostrar botones
-                document.getElementById('soundToggle').style.display = 'block';
-                document.getElementById('exitBtn').style.display = 'block';
-                
-                // Mostrar instrucciones brevemente
-                const arInstructions = document.getElementById('arInstructions');
-                arInstructions.style.display = 'block';
-                setTimeout(() => {
-                    arInstructions.style.display = 'none';
-                }, 3000);
-                
-                // Configurar eventos AR
-                setupAREvents();
-                
-            }, 100);
+            document.getElementById('ar-scene').style.display = 'block';
+            
+            // Mostrar controles
+            document.getElementById('controls').style.display = 'flex';
+            
+            // Configurar eventos después de que la escena se cargue
+            setTimeout(setupAREvents, 1000);
         }
         
-        // =================== EVENTOS AR ===================
         function setupAREvents() {
-            const soundToggle = document.getElementById('soundToggle');
-            const videoOverlay = document.getElementById('videoOverlay');
-            const overlayVideo = document.getElementById('overlayVideo');
-            const t = translations[currentLang];
+            // Obtener referencias a los videos
+            markerVideos = [];
+            for (let i = 0; i < 7; i++) {
+                const video = document.querySelector(`#ar-video${i}`);
+                if (video) {
+                    markerVideos.push(video);
+                    
+                    // Configurar eventos de error para el video
+                    video.addEventListener('error', (e) => {
+                        console.error(`Error cargando video ${i + 1}:`, e);
+                        alert(`Error al cargar el video ${i + 1}. Verifica que el archivo exista en: ${videoSources[i]}`);
+                    });
+                    
+                    // Configurar eventos de carga
+                    video.addEventListener('loadeddata', () => {
+                        console.log(`Video ${i + 1} cargado correctamente`);
+                    });
+                    
+                    // Configurar loop automático
+                    video.addEventListener('ended', () => {
+                        video.currentTime = 0;
+                        video.play();
+                    });
+                }
+            }
             
-            // Configurar cada marcador
-            for (let i = 0; i < 9; i++) {
+            // Configurar eventos para cada marcador
+            for (let i = 0; i < 7; i++) {
                 const marker = document.querySelector(`#ar-target${i}`);
                 if (!marker) continue;
                 
                 // Cuando se encuentra el marcador
                 marker.addEventListener('targetFound', () => {
-                    console.log(`Marcador ${i+1} detectado`);
-                    activeMarker = i;
+                    console.log(`Marcador ${i + 1} detectado`);
+                    currentVideoIndex = i;
                     
-                    // Mostrar botón de sonido para videos
-                    if (i < 8) {
-                        soundToggle.style.display = 'block';
-                    }
-                    
-                    // Reproducir video si corresponde
-                    if (i < 8) {
-                        const video = document.querySelector(`#ar-video${i}`);
-                        if (video) {
-                            video.muted = isMuted;
-                            video.currentTime = 0;
-                            video.play().catch(e => {
-                                console.log("Error reproduciendo video:", e);
-                                video.muted = true;
-                                video.play();
-                            });
-                        }
+                    // Reproducir el video correspondiente
+                    if (markerVideos[i]) {
+                        console.log(`Reproduciendo video ${i + 1}`);
+                        markerVideos[i].muted = isMuted;
+                        markerVideos[i].currentTime = 0;
+                        markerVideos[i].play().catch(error => {
+                            console.error(`Error al reproducir video ${i + 1}:`, error);
+                            // Intentar con mute
+                            markerVideos[i].muted = true;
+                            markerVideos[i].play();
+                        });
                     }
                     
                     // Ocultar overlay si está visible
-                    videoOverlay.style.display = 'none';
-                    overlayVideo.pause();
+                    document.getElementById('videoOverlay').style.display = 'none';
                 });
                 
                 // Cuando se pierde el marcador
                 marker.addEventListener('targetLost', () => {
-                    console.log(`Marcador ${i+1} perdido`);
+                    console.log(`Marcador ${i + 1} perdido`);
                     
-                    // Pausar video
-                    if (i < 8) {
-                        const video = document.querySelector(`#ar-video${i}`);
-                        if (video) {
-                            video.pause();
-                        }
-                    }
-                    
-                    // Mostrar overlay si no hay marcadores visibles
-                    setTimeout(() => {
-                        let anyVisible = false;
-                        for (let j = 0; j < 9; j++) {
-                            const m = document.querySelector(`#ar-target${j}`);
-                            if (m && m.getAttribute('visible')) {
-                                anyVisible = true;
-                                break;
-                            }
-                        }
+                    // Pausar el video
+                    if (markerVideos[i]) {
+                        markerVideos[i].pause();
                         
-                        if (!anyVisible && i < 8) {
-                            // Mostrar video en pantalla completa
-                            overlayVideo.src = videoSources[i];
-                            overlayVideo.muted = isMuted;
-                            overlayVideo.currentTime = 0;
-                            overlayVideo.play().catch(e => {
-                                overlayVideo.muted = true;
-                                overlayVideo.play();
-                            });
-                            videoOverlay.style.display = 'flex';
-                            
-                            // Ocultar botón de sonido
-                            soundToggle.style.display = 'none';
-                        }
-                    }, 100);
+                        // Mostrar el video en overlay
+                        const overlayVideo = document.getElementById('overlayVideo');
+                        const currentTime = markerVideos[i].currentTime;
+                        
+                        overlayVideo.src = videoSources[i];
+                        overlayVideo.currentTime = currentTime;
+                        overlayVideo.muted = isMuted;
+                        overlayVideo.loop = true;
+                        
+                        // Mostrar overlay
+                        document.getElementById('videoOverlay').style.display = 'flex';
+                        
+                        // Reproducir en overlay
+                        overlayVideo.play().catch(error => {
+                            console.error("Error reproduciendo overlay:", error);
+                            overlayVideo.muted = true;
+                            overlayVideo.play();
+                        });
+                    }
                 });
             }
             
-            // Configurar overlay video para loop
+            // Configurar overlay video
+            const overlayVideo = document.getElementById('overlayVideo');
             overlayVideo.addEventListener('ended', function() {
                 this.currentTime = 0;
                 this.play();
             });
             
-            // Click fuera del video para cerrar
-            videoOverlay.addEventListener('click', (e) => {
-                if (e.target === videoOverlay) {
-                    videoOverlay.style.display = 'none';
+            overlayVideo.addEventListener('error', function(e) {
+                console.error("Error en overlay video:", e);
+            });
+            
+            // Click en overlay para volver a AR
+            document.getElementById('videoOverlay').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('videoOverlay')) {
+                    document.getElementById('videoOverlay').style.display = 'none';
                     overlayVideo.pause();
                 }
             });
+            
+            console.log("Eventos AR configurados correctamente");
         }
         
         // =================== CONTROLES ===================
         function toggleSound() {
             isMuted = !isMuted;
-            const btn = document.getElementById('soundToggle');
-            const t = translations[currentLang];
+            const soundIcon = document.getElementById('soundIcon');
+            const soundText = document.getElementById('soundText');
             
-            // Actualizar todos los videos
-            for (let i = 0; i < 8; i++) {
-                const video = document.querySelector(`#ar-video${i}`);
+            // Actualizar todos los videos AR
+            markerVideos.forEach(video => {
                 if (video) {
                     video.muted = isMuted;
                 }
-            }
+            });
             
-            // Actualizar overlay
+            // Actualizar overlay video
             const overlayVideo = document.getElementById('overlayVideo');
             if (overlayVideo) {
                 overlayVideo.muted = isMuted;
@@ -773,18 +583,21 @@
             
             // Actualizar botón
             if (isMuted) {
-                btn.textContent = '🔇 ' + t.soundOff;
+                soundIcon.textContent = '🔇';
+                soundText.textContent = 'SONIDO OFF';
             } else {
-                btn.textContent = '🔊 ' + t.soundOn;
+                soundIcon.textContent = '🔊';
+                soundText.textContent = 'SONIDO ON';
             }
+            
+            console.log('Sonido:', isMuted ? 'OFF' : 'ON');
         }
         
-        function exitExperience() {
+        function restartExperience() {
             // Pausar todos los videos
-            for (let i = 0; i < 8; i++) {
-                const video = document.querySelector(`#ar-video${i}`);
+            markerVideos.forEach(video => {
                 if (video) video.pause();
-            }
+            });
             
             const overlayVideo = document.getElementById('overlayVideo');
             if (overlayVideo) overlayVideo.pause();
@@ -792,13 +605,24 @@
             // Ocultar todo
             document.getElementById('ar-scene').style.display = 'none';
             document.getElementById('videoOverlay').style.display = 'none';
-            document.getElementById('soundToggle').style.display = 'none';
-            document.getElementById('exitBtn').style.display = 'none';
-            document.getElementById('arInstructions').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
             
-            // Mostrar pantalla de idioma
-            document.getElementById('languageScreen').style.display = 'flex';
+            // Mostrar pantalla de inicio
+            document.getElementById('startScreen').style.display = 'flex';
+            
+            // Limpiar escena
+            document.getElementById('ar-scene').innerHTML = '';
         }
+        
+        // =================== ERROR HANDLING ===================
+        window.addEventListener('error', function(e) {
+            console.error('Error global:', e);
+        });
+        
+        // Log para depuración
+        console.log("Aplicación AR inicializada");
+        console.log("Videos configurados:", videoSources.length);
+        console.log("Archivo marker.mind requerido para los 7 marcadores");
     </script>
 </body>
 </html>
