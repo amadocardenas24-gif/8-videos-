@@ -77,7 +77,6 @@
             transform: scale(1.05);
         }
 
-        /* Barra de carga */
         .loading-bar {
             width: 300px;
             height: 10px;
@@ -192,7 +191,6 @@
             border: 2px solid white;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .screen-title {
                 font-size: 2rem;
@@ -408,7 +406,7 @@
             
             document.getElementById('loadingScreen').style.display = 'none';
             
-            // Crear escena AR CORREGIDA - MATERIAL FIXED
+            // CORRECCIÓN: Material simplificado para mostrar videos
             let assetsHTML = '';
             let targetsHTML = '';
             
@@ -426,7 +424,7 @@
                     ></video>
                 `;
                 
-                // CORRECCIÓN IMPORTANTE: Material simplificado
+                // SOLUCIÓN PARA VIDEOS INVISIBLES
                 targetsHTML += `
                     <a-entity 
                         id="ar-target${i}" 
@@ -435,16 +433,15 @@
                         <a-plane
                             src="#ar-video${i}"
                             position="0 0 0"
-                            rotation="0 0 0"
+                            rotation="-90 0 0"
                             height="0.75"
                             width="1"
-                            material="shader: flat; transparent: true; opacity: 1"
+                            material="shader: flat; side: double; transparent: false"
                         ></a-plane>
                     </a-entity>
                 `;
             }
             
-            // Escena simplificada
             const arSceneHTML = `
                 <a-scene 
                     mindar-image="imageTargetSrc: ./marker.mind; autoStart: true; maxTrack: 2; uiScanning: no; uiLoading: no; uiError: no;" 
@@ -452,7 +449,7 @@
                     device-orientation-permission-ui="enabled: false"
                     embedded
                     loading-screen="enabled: false"
-                    renderer="colorManagement: true; alpha: true; antialias: true"
+                    renderer="colorManagement: true; alpha: false; antialias: true; precision: high"
                 >
                     <a-assets>
                         ${assetsHTML}
@@ -466,8 +463,8 @@
                     
                     ${targetsHTML}
                     
-                    <a-light type="ambient" color="#FFFFFF" intensity="0.8"></a-light>
-                    <a-light type="directional" position="0 5 5" intensity="0.5"></a-light>
+                    <a-light type="ambient" color="#FFFFFF" intensity="1.0"></a-light>
+                    <a-light type="directional" position="0 5 5" intensity="0.8" castShadow></a-light>
                 </a-scene>
             `;
             
@@ -478,7 +475,7 @@
                 document.getElementById('controls').style.display = 'flex';
                 document.getElementById('status').style.display = 'block';
                 
-                setTimeout(setupAREvents, 1000);
+                setTimeout(setupAREvents, 1500);
             }, 500);
         }
         
@@ -486,7 +483,7 @@
         function setupAREvents() {
             console.log("Configurando eventos AR...");
             
-            // Precargar y verificar videos
+            // Precargar videos con eventos mejorados
             markerVideos = [];
             const videoPromises = [];
             
@@ -495,31 +492,42 @@
                 if (video) {
                     markerVideos.push(video);
                     
-                    // Crear promesa para cada video
+                    // Configurar eventos del video
+                    setupVideoEvents(video, i);
+                    
                     const promise = new Promise((resolve) => {
-                        video.addEventListener('loadeddata', () => {
-                            console.log(`✓ Video ${i+1} cargado: ${video.videoWidth}x${video.videoHeight}`);
+                        const onLoaded = () => {
+                            console.log(`✅ Video ${i+1} cargado: ${video.videoWidth}x${video.videoHeight}`);
+                            video.removeEventListener('loadeddata', onLoaded);
                             resolve();
-                        });
+                        };
                         
-                        video.addEventListener('error', () => {
-                            console.error(`✗ Error cargando video ${i+1}`);
+                        const onError = () => {
+                            console.error(`❌ Error cargando video ${i+1}: ${videoSources[i]}`);
+                            video.removeEventListener('error', onError);
                             resolve(); // Continuar aunque falle
-                        });
+                        };
                         
-                        // Forzar carga
-                        video.load();
+                        video.addEventListener('loadeddata', onLoaded);
+                        video.addEventListener('error', onError);
+                        
+                        // Forzar carga si no se ha cargado
+                        if (video.readyState < 2) {
+                            video.load();
+                        } else {
+                            resolve();
+                        }
                     });
                     
                     videoPromises.push(promise);
                 }
             }
             
-            // Esperar a que todos los videos carguen
+            // Cuando todos los videos estén listos
             Promise.all(videoPromises).then(() => {
                 console.log("Todos los videos procesados");
                 
-                // Configurar eventos de marcadores
+                // Configurar marcadores
                 for (let i = 0; i < 7; i++) {
                     const marker = document.querySelector(`#ar-target${i}`);
                     if (marker) {
@@ -531,42 +539,87 @@
             });
         }
         
+        function setupVideoEvents(video, index) {
+            video.addEventListener('loadeddata', () => {
+                console.log(`Video ${index+1} dimensiones: ${video.videoWidth}x${video.videoHeight}`);
+                
+                // Forzar actualización del material
+                setTimeout(() => {
+                    const plane = document.querySelector(`#ar-target${index} a-plane`);
+                    if (plane) {
+                        plane.setAttribute('material', 'src', `#ar-video${index}`);
+                    }
+                }, 100);
+            });
+            
+            video.addEventListener('error', (e) => {
+                console.error(`Error en video ${index+1}:`, e);
+                console.log(`Ruta del video: ${videoSources[index]}`);
+            });
+            
+            video.addEventListener('canplay', () => {
+                console.log(`Video ${index+1} listo para reproducir`);
+            });
+            
+            // Loop automático
+            video.addEventListener('ended', () => {
+                video.currentTime = 0;
+                video.play().catch(e => {
+                    console.log(`Error en loop video ${index+1}:`, e);
+                });
+            });
+        }
+        
         function setupMarkerEvents(marker, index) {
             // Cuando se detecta el marcador
             marker.addEventListener('targetFound', () => {
                 console.log(`🎯 Marcador ${index+1} detectado`);
                 currentMarkerIndex = index;
                 
-                // Ocultar overlay si está visible
+                // Ocultar overlay
                 document.getElementById('videoOverlay').style.display = 'none';
                 const overlayVideo = document.getElementById('overlayVideo');
                 if (overlayVideo) overlayVideo.pause();
                 
-                // Reproducir el video correspondiente
+                // Reproducir video AR
                 if (markerVideos[index]) {
                     const video = markerVideos[index];
+                    
+                    // Asegurar que el video esté visible
+                    const plane = marker.querySelector('a-plane');
+                    if (plane) {
+                        // Forzar actualización del material
+                        plane.setAttribute('material', 'src', `#ar-video${index}`);
+                        plane.setAttribute('material', 'opacity', 1);
+                        plane.setAttribute('material', 'transparent', false);
+                    }
+                    
+                    // Configurar y reproducir
                     video.muted = isMuted;
                     video.currentTime = 0;
                     
-                    // Intentar reproducir
-                    const playPromise = video.play();
-                    
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.log(`Autoplay prevenido para video ${index+1}:`, error);
+                    // Intentar reproducir con manejo de errores
+                    const playVideo = () => {
+                        video.play().then(() => {
+                            console.log(`▶️ Video ${index+1} reproduciéndose`);
+                        }).catch(error => {
+                            console.warn(`⚠️ Autoplay bloqueado video ${index+1}:`, error);
                             // Silenciar y reintentar
                             video.muted = true;
                             video.play().catch(e => {
-                                console.error(`Error grave video ${index+1}:`, e);
+                                console.error(`❌ Error grave video ${index+1}:`, e);
                             });
                         });
-                    }
+                    };
+                    
+                    // Pequeño delay para asegurar que el DOM esté actualizado
+                    setTimeout(playVideo, 100);
                 }
                 
                 // Actualizar estado
                 document.getElementById('status').innerHTML = `
                     <div class="status-box">
-                        🎬 Reproduciendo: Marcador ${index+1}
+                        🎬 Marcador ${index+1}
                     </div>
                 `;
             });
@@ -575,16 +628,17 @@
             marker.addEventListener('targetLost', () => {
                 console.log(`Marcador ${index+1} perdido`);
                 
-                // Pausar el video AR
                 if (markerVideos[index]) {
                     const currentTime = markerVideos[index].currentTime;
                     markerVideos[index].pause();
                     
-                    // Mostrar en overlay
-                    showVideoInOverlay(index, currentTime);
+                    // Mostrar en overlay si estaba reproduciendo
+                    if (currentTime > 0 && markerVideos[index].duration > 0) {
+                        showVideoInOverlay(index, currentTime);
+                    }
                 }
                 
-                // Restaurar estado después de un breve retraso
+                // Restaurar estado
                 setTimeout(() => {
                     if (!document.querySelector(`#ar-target${index}`)?.getAttribute('visible')) {
                         document.getElementById('status').innerHTML = `
@@ -602,12 +656,6 @@
             
             const overlayVideo = document.getElementById('overlayVideo');
             
-            // Si ya está mostrando este video, no hacer nada
-            if (overlayVideo.src && overlayVideo.src.includes(videoSources[index]) && 
-                document.getElementById('videoOverlay').style.display === 'flex') {
-                return;
-            }
-            
             // Configurar overlay
             overlayVideo.src = videoSources[index];
             overlayVideo.currentTime = currentTime || 0;
@@ -617,18 +665,14 @@
             // Mostrar overlay
             document.getElementById('videoOverlay').style.display = 'flex';
             
-            // Intentar reproducir
-            const playPromise = overlayVideo.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Autoplay prevenido para overlay:", error);
-                    overlayVideo.muted = true;
-                    overlayVideo.play().catch(e => {
-                        console.error("Error grave overlay:", e);
-                    });
+            // Reproducir
+            overlayVideo.play().catch(error => {
+                console.warn("Autoplay overlay bloqueado:", error);
+                overlayVideo.muted = true;
+                overlayVideo.play().catch(e => {
+                    console.error("Error grave overlay:", e);
                 });
-            }
+            });
         }
         
         function setupOverlayVideo() {
@@ -717,17 +761,6 @@
             // Mostrar inicio
             document.getElementById('startScreen').style.display = 'flex';
         }
-        
-        // =================== MANEJO DE ERRORES ===================
-        window.addEventListener('error', function(e) {
-            console.error('Error global:', e);
-        });
-        
-        window.addEventListener('beforeunload', function() {
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-            }
-        });
     </script>
 </body>
 </html>
