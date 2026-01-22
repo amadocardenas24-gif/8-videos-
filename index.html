@@ -1,0 +1,2253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AR Video Experience - Tropical AR (9 Marcadores)</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Arial', sans-serif;
+            background: black;
+        }
+
+        /* PANTALLA DE SELECCIÓN DE IDIOMA */
+        .language-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 25%, #4ECDC4 50%, #1A535C 75%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .language-content {
+            text-align: center;
+            animation: fadeInUp 0.8s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            border: 3px solid white;
+            max-width: 95%;
+        }
+
+        .language-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        .language-title {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 40px;
+            font-weight: bold;
+            text-shadow: 3px 3px 0 #1A535C;
+        }
+
+        .language-subtitle {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0 #FF6B6B;
+        }
+
+        /* BOTONES DE IDIOMA */
+        .language-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .language-btn {
+            background: linear-gradient(135deg, #4ECDC4, #1A535C);
+            color: white;
+            border: none;
+            padding: 25px 30px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .language-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .language-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .language-btn .flag {
+            font-size: 2.5rem;
+            margin-right: 20px;
+        }
+
+        .language-btn .language-name {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .language-btn .language-native {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-weight: normal;
+        }
+
+        .language-btn .check-icon {
+            font-size: 1.8rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .language-btn.selected .check-icon {
+            opacity: 1;
+        }
+
+        .language-btn.selected {
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .language-note {
+            color: white;
+            font-size: 1rem;
+            margin-top: 30px;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* PANTALLA DE AUTORIZACIÓN DE CÁMARA */
+        .camera-permission-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1A535C 0%, #4ECDC4 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            padding: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .permission-content {
+            max-width: 95%;
+            animation: fadeInUp 0.8s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 3px solid white;
+        }
+
+        .permission-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: pulse 2s infinite;
+            color: white;
+        }
+
+        .permission-title {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #FF6B6B;
+        }
+
+        .permission-description {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        /* BOTÓN DE AUTORIZACIÓN */
+        .permission-btn {
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            color: white;
+            border: none;
+            padding: 25px 50px;
+            font-size: 1.8rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 400px;
+            animation: pulseBtn 2s infinite;
+        }
+
+        @keyframes pulseBtn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .permission-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .permission-btn:active {
+            transform: scale(0.95);
+        }
+
+        .permission-btn .btn-icon {
+            font-size: 2rem;
+        }
+
+        .permission-note {
+            color: #FFE66D;
+            font-size: 1rem;
+            margin-top: 30px;
+            padding: 15px;
+            border: 2px solid #FFE66D;
+            border-radius: 10px;
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        /* Animaciones */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Ocultar elementos de UI de A-Frame */
+        .a-enter-vr, 
+        .a-enter-ar,
+        .a-orientation-modal,
+        .a-vr-modal,
+        .vr-button,
+        .ar-button,
+        .a-enter-vr-button,
+        .a-enter-ar-button,
+        [data-a-frame-button] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* Pantalla de carga */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 25%, #4ECDC4 50%, #1A535C 75%);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+            display: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: 20px;
+            max-width: 95%;
+        }
+
+        .loading-title {
+            font-size: 2.5rem;
+            color: white;
+            text-shadow: 3px 3px 0 #1A535C;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        /* Barra de carga */
+        .loading-bar-container {
+            width: 80%;
+            max-width: 300px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px auto;
+            border: 2px solid #1A535C;
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FF6B6B, #FFE66D, #4ECDC4);
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+
+        .loading-percentage {
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 2px 2px 0 #1A535C;
+        }
+
+        /* Mensaje de transición entre etapas */
+        .transition-message {
+            font-size: 1.5rem;
+            color: white;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 107, 107, 0.3);
+            border-radius: 15px;
+            border: 2px solid #FFE66D;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInOut 3s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Instrucciones en diferentes idiomas */
+        .instructions-container {
+            margin-top: 30px;
+            position: relative;
+            height: 150px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .instruction-step {
+            position: absolute;
+            text-align: center;
+            opacity: 0;
+            animation: stepFade 15s infinite;
+        }
+
+        .instruction-step:nth-child(1) { animation-delay: 0s; }
+        .instruction-step:nth-child(2) { animation-delay: 5s; }
+        .instruction-step:nth-child(3) { animation-delay: 10s; }
+
+        @keyframes stepFade {
+            0%, 20% { opacity: 1; }
+            33%, 100% { opacity: 0; }
+        }
+
+        .instruction-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        .instruction-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            background: rgba(26, 83, 92, 0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* BOTONES MEJORADOS CON TEXTO */
+        .sound-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            padding: 15px 25px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            border: 3px solid white;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 1001;
+            display: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 180px;
+        }
+
+        .sound-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        /* Botón de salir de la experiencia */
+        .exit-experience-btn {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            padding: 15px 25px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #FF3333, #FF6666);
+            border: 3px solid white;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 1002;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 160px;
+            display: none;
+        }
+
+        .exit-experience-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 51, 51, 0.5);
+        }
+
+        /* Instrucciones AR */
+        .ar-instructions {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 1003;
+            display: none;
+        }
+
+        .ar-instruction-card {
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: slideInDown 0.5s ease;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Escena AR */
+        #ar-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
+            display: none;
+        }
+
+        /* Video fijo en pantalla */
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1004;
+        }
+
+        .video-container {
+            width: 90%;
+            max-width: 900px;
+            background: black;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 3px solid #4ECDC4;
+            position: relative;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .close-video-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 1005;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 160px;
+        }
+
+        .close-video-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Botón de salir TOTAL de la aplicación */
+        .full-exit-btn {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            padding: 15px 25px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #FF0000, #FF4444);
+            border: 3px solid white;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 1006;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 160px;
+            display: none;
+        }
+
+        .full-exit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Pantalla de despedida */
+        .goodbye-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1A535C 0%, #4ECDC4 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            text-align: center;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .goodbye-content {
+            max-width: 95%;
+            animation: fadeInUp 0.8s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            border: 3px solid white;
+        }
+
+        .goodbye-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: bounce 2s infinite;
+            color: white;
+        }
+
+        .goodbye-title {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 3px 3px 0 #FF6B6B;
+        }
+
+        .goodbye-message {
+            color: white;
+            font-size: 1.3rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        /* Indicador de marcador activo */
+        .marker-indicator {
+            position: fixed;
+            bottom: 90px;
+            right: 25px;
+            background: linear-gradient(135deg, #4ECDC4, #1A535C);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid white;
+            min-width: 200px;
+        }
+
+        .marker-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Contenedor de miniaturas */
+        .thumbnails-container {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1001;
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        .thumbnail-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            border: 2px solid white;
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .thumbnail-btn.active {
+            background: linear-gradient(135deg, #4ECDC4, #1A535C);
+            transform: scale(1.1);
+            border-color: #FFE66D;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .language-title {
+                font-size: 2rem;
+            }
+            
+            .language-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .language-btn {
+                padding: 20px 25px;
+                font-size: 1.3rem;
+            }
+            
+            .permission-title {
+                font-size: 2rem;
+            }
+            
+            .permission-description {
+                font-size: 1.1rem;
+            }
+            
+            .permission-btn {
+                padding: 20px 30px;
+                font-size: 1.5rem;
+            }
+            
+            /* Botones responsivos */
+            .sound-btn, 
+            .exit-experience-btn, 
+            .close-video-btn, 
+            .full-exit-btn,
+            .marker-indicator {
+                padding: 12px 20px;
+                font-size: 1.1rem;
+                min-width: 140px;
+            }
+            
+            .sound-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .exit-experience-btn {
+                top: 20px;
+                left: 20px;
+            }
+            
+            .full-exit-btn {
+                bottom: 20px;
+                left: 20px;
+            }
+            
+            .marker-indicator {
+                bottom: 80px;
+                right: 20px;
+                min-width: 160px;
+            }
+            
+            .instruction-icon {
+                font-size: 3rem;
+            }
+            
+            .video-container {
+                width: 95%;
+                border-radius: 15px;
+            }
+            
+            .transition-message {
+                font-size: 1.2rem;
+                padding: 12px;
+            }
+            
+            .thumbnail-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .language-icon {
+                font-size: 4rem;
+            }
+            
+            .language-title {
+                font-size: 2rem;
+                margin-bottom: 30px;
+            }
+            
+            .permission-icon {
+                font-size: 4rem;
+            }
+            
+            .permission-title {
+                font-size: 2rem;
+            }
+            
+            .permission-description {
+                font-size: 1.1rem;
+                margin-bottom: 30px;
+            }
+            
+            .instructions-container {
+                height: 120px;
+            }
+            
+            .video-container {
+                max-width: 800px;
+            }
+            
+            .transition-message {
+                font-size: 1.1rem;
+                min-height: 60px;
+            }
+            
+            /* Botones más compactos */
+            .sound-btn, 
+            .exit-experience-btn, 
+            .close-video-btn, 
+            .full-exit-btn,
+            .marker-indicator {
+                padding: 10px 18px;
+                font-size: 1rem;
+                min-width: 130px;
+            }
+            
+            .thumbnail-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Pantalla de selección de idioma -->
+    <div class="language-screen" id="languageScreen">
+        <div class="language-content">
+            <div class="language-icon">🌐</div>
+            <h1 class="language-title">🌴 AR TROPICAL 🌺</h1>
+            <div class="language-subtitle">Selecciona tu idioma / Select your language / Selecione seu idioma</div>
+            
+            <div class="language-buttons">
+                <!-- Español -->
+                <button class="language-btn" id="langEs" data-lang="es">
+                    <span class="flag">🇪🇸</span>
+                    <div class="language-name">
+                        Español
+                        <div class="language-native">Español</div>
+                    </div>
+                    <span class="check-icon">✅</span>
+                </button>
+                
+                <!-- English -->
+                <button class="language-btn" id="langEn" data-lang="en">
+                    <span class="flag">🇺🇸</span>
+                    <div class="language-name">
+                        English
+                        <div class="language-native">English</div>
+                    </div>
+                    <span class="check-icon">✅</span>
+                </button>
+                
+                <!-- Português -->
+                <button class="language-btn" id="langPt" data-lang="pt">
+                    <span class="flag">🇧🇷</span>
+                    <div class="language-name">
+                        Português
+                        <div class="language-native">Português</div>
+                    </div>
+                    <span class="check-icon">✅</span>
+                </button>
+            </div>
+            
+            <div class="language-note">
+                Puedes cambiar el idioma más tarde en la configuración.
+                <br>
+                You can change language later in settings.
+                <br>
+                Você pode alterar o idioma mais tarde nas configurações.
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de autorización de cámara (dinámica según idioma) -->
+    <div class="camera-permission-screen" id="cameraPermissionScreen">
+        <div class="permission-content">
+            <div class="permission-icon" id="permissionIcon">📸</div>
+            <h1 class="permissionTitle" id="permissionTitle">¡Hola! 🌴</h1>
+            
+            <div class="permission-description" id="permissionDescription">
+                Para disfrutar de esta experiencia de Realidad Aumentada, necesitamos acceso a tu cámara.
+                <br><br>
+                Esto nos permitirá mostrar contenido AR cuando apuntes a marcadores especiales.
+            </div>
+            
+            <div class="transition-message" id="transitionMessage1">
+                Prepárate para una experiencia tropical única... 🌺
+            </div>
+            
+            <button class="permission-btn" id="allowCameraBtn">
+                <span class="btn-icon">✅</span>
+                <span id="permissionBtnText">PERMITIR CÁMARA</span>
+            </button>
+            
+            <div class="permission-note" id="permissionNote">
+                ℹ️ La cámara solo se usa para la experiencia AR. No grabamos ni almacenamos video.
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de carga (dinámica según idioma) -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-title" id="loadingTitle">🌴 AR TROPICAL 🌺</div>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+            <div class="loading-percentage" id="loadingPercentage">0%</div>
+            <div class="loading-percentage" id="loadingText">Cargando...</div>
+            
+            <div class="transition-message" id="transitionMessage2">
+                Preparando la experiencia AR mágica... ✨
+            </div>
+            
+            <!-- Instrucciones según idioma -->
+            <div class="instructions-container" id="instructionsContainer">
+                <!-- Las instrucciones se cargarán dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de despedida -->
+    <div class="goodbye-screen" id="goodbyeScreen">
+        <div class="goodbye-content">
+            <div class="goodbye-icon">👋</div>
+            <h1 class="goodbye-title" id="goodbyeTitle">¡Hasta luego!</h1>
+            <div class="goodbye-message" id="goodbyeMessage">
+                Gracias por disfrutar de AR Tropical.
+                <br><br>
+                Esperamos verte pronto de nuevo. 🌴
+            </div>
+            <div class="transition-message">
+                Cerrando la aplicación...
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de sonido -->
+    <button class="sound-btn" id="soundToggle">
+        <span class="btn-icon">🔇</span>
+        <span class="btn-text">Sonido OFF</span>
+    </button>
+    
+    <!-- Indicador de marcador activo -->
+    <div class="marker-indicator" id="markerIndicator">
+        <span class="marker-icon" id="markerIcon">🎬</span>
+        <span class="marker-text" id="markerText">Marcador 1</span>
+    </div>
+    
+    <!-- Botón de salir de la experiencia (esquina superior izquierda) -->
+    <button class="exit-experience-btn" id="exitExperienceBtn">
+        <span class="btn-icon">🚪</span>
+        <span class="btn-text">Salir</span>
+    </button>
+    
+    <!-- Botón de salir TOTAL de la aplicación (esquina inferior izquierda) -->
+    <button class="full-exit-btn" id="fullExitBtn">
+        <span class="btn-icon">❌</span>
+        <span class="btn-text">Salir App</span>
+    </button>
+    
+    <!-- Miniaturas para navegación -->
+    <div class="thumbnails-container" id="thumbnailsContainer">
+        <!-- Las miniaturas se generarán dinámicamente -->
+    </div>
+    
+    <!-- Instrucciones flotantes en AR -->
+    <div class="ar-instructions" id="arInstructions">
+        <div class="ar-instruction-card" id="arInstructionText">
+            <span class="icon">👉</span>
+            Mueve lentamente sobre el marcador
+        </div>
+    </div>
+
+    <!-- Video fijo en pantalla -->
+    <div class="video-overlay" id="videoOverlay">
+        <div class="video-container">
+            <video id="overlayVideo" loop muted playsinline webkit-playsinline>
+                Tu navegador no soporta video HTML5.
+            </video>
+            <button class="close-video-btn" id="closeVideoBtn">
+                <span class="btn-icon">✕</span>
+                <span class="btn-text">Cerrar video</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Escena AR -->
+    <div id="ar-scene">
+        <!-- La escena A-Frame se insertará aquí dinámicamente -->
+    </div>
+
+    <script>
+        // =================== SISTEMA DE IDIOMAS ===================
+        
+        const translations = {
+            es: {
+                // Pantalla de idioma
+                languageTitle: "🌴 AR TROPICAL 🌺",
+                languageSubtitle: "Selecciona tu idioma",
+                languageNote: "Puedes cambiar el idioma más tarde en la configuración.",
+                
+                // Pantalla de permisos
+                permissionTitle: "¡Hola! 🌴",
+                permissionDescription: "Para disfrutar de esta experiencia de Realidad Aumentada, necesitamos acceso a tu cámara.<br><br>Esto nos permitirá mostrar contenido AR cuando apuntes a 9 marcadores especiales.",
+                permissionBtn: "PERMITIR CÁMARA",
+                permissionNote: "ℹ️ La cámara solo se usa para la experiencia AR. No grabamos ni almacenamos video.",
+                transition1: "Prepárate para una experiencia tropical única... 🌺",
+                transition2: "Preparando la experiencia AR mágica... ✨",
+                transition3: "Casi listo... el video tropical está por comenzar... 🏝️",
+                
+                // Pantalla de carga
+                loadingTitle: "🌴 AR TROPICAL 🌺",
+                loadingText: "Cargando...",
+                
+                // Instrucciones
+                instructions: [
+                    { icon: "📱", text: "Abre tu cámara" },
+                    { icon: "🔍", text: "Busca los 9 marcadores" },
+                    { icon: "🎬", text: "¡Disfruta los videos AR!" }
+                ],
+                
+                // Mensajes aleatorios para entretener
+                funMessages: [
+                    "🌺 Descubriendo la magia tropical...",
+                    "🏝️ Cargando 9 marcadores AR...",
+                    "🌴 Preparando 8 videos diferentes...",
+                    "🦜 Buscando loros virtuales...",
+                    "🌊 Generando olas AR...",
+                    "☀️ Cargando sol virtual...",
+                    "🐠 Preparando peces tropicales...",
+                    "🎶 Sincronizando sonidos del océano...",
+                    "🌈 Creando arcoíris digital...",
+                    "🍹 Mezclando cócteles virtuales..."
+                ],
+                
+                // Instrucciones AR
+                arInstruction: "Mueve lentamente sobre los marcadores",
+                
+                // Botones y mensajes
+                soundOff: "Sonido OFF",
+                soundOn: "Sonido ON",
+                soundIconOff: "🔇",
+                soundIconOn: "🔊",
+                exitBtn: "Salir",
+                exitIcon: "🚪",
+                closeVideo: "Cerrar video",
+                closeIcon: "✕",
+                fullExit: "Salir App",
+                fullExitIcon: "❌",
+                processing: "SOLICITANDO...",
+                granted: "¡PERMITIDO!",
+                error: "ERROR - TOCA PARA REINTENTAR",
+                goodbyeTitle: "¡Hasta luego!",
+                goodbyeMessage: "Gracias por disfrutar de AR Tropical.<br><br>Esperamos verte pronto de nuevo. 🌴",
+                errorMessages: {
+                    denied: "El permiso fue denegado. Por favor, permite el acceso a la cámara en la configuración de tu navegador.",
+                    noCamera: "No se encontró ninguna cámara.",
+                    notSupported: "Tu navegador no soporta acceso a la cámara.",
+                    unknown: "Error desconocido: "
+                },
+                
+                // Nombres de los marcadores
+                markerNames: [
+                    "Marcador 1 - Playa Tropical",
+                    "Marcador 2 - Selva Mágica",
+                    "Marcador 3 - Arrecife de Coral",
+                    "Marcador 4 - Cascada",
+                    "Marcador 5 - Atardecer",
+                    "Marcador 6 - Isla Desierta",
+                    "Marcador 7 - Fondo Marino",
+                    "Marcador 8 - Cielo Estrellado",
+                    "Marcador 9 - Experiencia Especial"
+                ],
+                
+                // Miniaturas
+                thumbnails: [
+                    "🏖️", "🌴", "🐠", "🌊", "🌅", "🏝️", "🐬", "🌌", "🌟"
+                ]
+            },
+            
+            en: {
+                // Language screen
+                languageTitle: "🌴 AR TROPICAL 🌺",
+                languageSubtitle: "Select your language",
+                languageNote: "You can change language later in settings.",
+                
+                // Permission screen
+                permissionTitle: "Hello! 🌴",
+                permissionDescription: "To enjoy this Augmented Reality experience, we need access to your camera.<br><br>This will allow us to show AR content when you point at 9 special markers.",
+                permissionBtn: "ALLOW CAMERA",
+                permissionNote: "ℹ️ The camera is only used for the AR experience. We don't record or store video.",
+                transition1: "Get ready for a unique tropical experience... 🌺",
+                transition2: "Preparing the magical AR experience... ✨",
+                transition3: "Almost ready... the tropical video is about to start... 🏝️",
+                
+                // Loading screen
+                loadingTitle: "🌴 AR TROPICAL 🌺",
+                loadingText: "Loading...",
+                
+                // Instructions
+                instructions: [
+                    { icon: "📱", text: "Open your camera" },
+                    { icon: "🔍", text: "Find the 9 markers" },
+                    { icon: "🎬", text: "Enjoy the AR videos!" }
+                ],
+                
+                // Fun messages to entertain
+                funMessages: [
+                    "🌺 Discovering tropical magic...",
+                    "🏝️ Loading 9 AR markers...",
+                    "🌴 Preparing 8 different videos...",
+                    "🦜 Looking for virtual parrots...",
+                    "🌊 Generating AR waves...",
+                    "☀️ Loading virtual sun...",
+                    "🐠 Preparing tropical fish...",
+                    "🎶 Syncing ocean sounds...",
+                    "🌈 Creating digital rainbow...",
+                    "🍹 Mixing virtual cocktails..."
+                ],
+                
+                // AR Instructions
+                arInstruction: "Move slowly over the markers",
+                
+                // Buttons and messages
+                soundOff: "Sound OFF",
+                soundOn: "Sound ON",
+                soundIconOff: "🔇",
+                soundIconOn: "🔊",
+                exitBtn: "Exit",
+                exitIcon: "🚪",
+                closeVideo: "Close video",
+                closeIcon: "✕",
+                fullExit: "Exit App",
+                fullExitIcon: "❌",
+                processing: "PROCESSING...",
+                granted: "GRANTED!",
+                error: "ERROR - TAP TO RETRY",
+                goodbyeTitle: "Goodbye!",
+                goodbyeMessage: "Thank you for enjoying AR Tropical.<br><br>We hope to see you again soon. 🌴",
+                errorMessages: {
+                    denied: "Permission was denied. Please allow camera access in your browser settings.",
+                    noCamera: "No camera found.",
+                    notSupported: "Your browser doesn't support camera access.",
+                    unknown: "Unknown error: "
+                },
+                
+                // Marker names
+                markerNames: [
+                    "Marker 1 - Tropical Beach",
+                    "Marker 2 - Magic Jungle",
+                    "Marker 3 - Coral Reef",
+                    "Marker 4 - Waterfall",
+                    "Marker 5 - Sunset",
+                    "Marker 6 - Desert Island",
+                    "Marker 7 - Seabed",
+                    "Marker 8 - Starry Sky",
+                    "Marker 9 - Special Experience"
+                ],
+                
+                // Thumbnails
+                thumbnails: [
+                    "🏖️", "🌴", "🐠", "🌊", "🌅", "🏝️", "🐬", "🌌", "🌟"
+                ]
+            },
+            
+            pt: {
+                // Tela de idioma
+                languageTitle: "🌴 AR TROPICAL 🌺",
+                languageSubtitle: "Selecione seu idioma",
+                languageNote: "Você pode alterar o idioma mais tarde nas configurações.",
+                
+                // Tela de permissões
+                permissionTitle: "Olá! 🌴",
+                permissionDescription: "Para desfrutar desta experiência de Realidade Aumentada, precisamos de acesso à sua câmera.<br><br>Isso nos permitirá mostrar conteúdo AR quando você apontar para 9 marcadores especiais.",
+                permissionBtn: "PERMITIR CÂMERA",
+                permissionNote: "ℹ️ A câmera só é usada para a experiência AR. Não gravamos nem armazenamos vídeo.",
+                transition1: "Prepare-se para uma experiência tropical única... 🌺",
+                transition2: "Preparando a experiência AR mágica... ✨",
+                transition3: "Quase pronto... o vídeo tropical está prestes a começar... 🏝️",
+                
+                // Tela de carregamento
+                loadingTitle: "🌴 AR TROPICAL 🌺",
+                loadingText: "Carregando...",
+                
+                // Instruções
+                instructions: [
+                    { icon: "📱", text: "Abra sua câmera" },
+                    { icon: "🔍", text: "Encontre os 9 marcadores" },
+                    { icon: "🎬", text: "Aproveite os vídeos AR!" }
+                ],
+                
+                // Mensagens divertidas para entreter
+                funMessages: [
+                    "🌺 Descobrindo a magia tropical...",
+                    "🏝️ Carregando 9 marcadores AR...",
+                    "🌴 Preparando 8 vídeos diferentes...",
+                    "🦜 Procurando papagaios virtuais...",
+                    "🌊 Gerando ondas AR...",
+                    "☀️ Carregando sol virtual...",
+                    "🐠 Preparando peixes tropicais...",
+                    "🎶 Sincronizando sons do oceano...",
+                    "🌈 Criando arco-íris digital...",
+                    "🍹 Misturando coquetéis virtuais..."
+                ],
+                
+                // Instruções AR
+                arInstruction: "Mova-se lentamente sobre os marcadores",
+                
+                // Botões e mensajes
+                soundOff: "Som OFF",
+                soundOn: "Som ON",
+                soundIconOff: "🔇",
+                soundIconOn: "🔊",
+                exitBtn: "Sair",
+                exitIcon: "🚪",
+                closeVideo: "Fechar vídeo",
+                closeIcon: "✕",
+                fullExit: "Sair App",
+                fullExitIcon: "❌",
+                processing: "PROCESSANDO...",
+                granted: "PERMITIDO!",
+                error: "ERRO - TOQUE PARA TENTAR NOVAMENTE",
+                goodbyeTitle: "Até logo!",
+                goodbyeMessage: "Obrigado por desfrutar do AR Tropical.<br><br>Esperamos vê-lo em breve novamente. 🌴",
+                errorMessages: {
+                    denied: "A permissão foi negada. Por favor, permita o acesso à câmera nas configurações do seu navegador.",
+                    noCamera: "Nenhuma câmera encontrada.",
+                    notSupported: "Seu navegador não suporta acesso à câmera.",
+                    unknown: "Erro desconocido: "
+                },
+                
+                // Nomes dos marcadores
+                markerNames: [
+                    "Marcador 1 - Praia Tropical",
+                    "Marcador 2 - Selva Mágica",
+                    "Marcador 3 - Recife de Coral",
+                    "Marcador 4 - Cachoeira",
+                    "Marcador 5 - Pôr do Sol",
+                    "Marcador 6 - Ilha Desertada",
+                    "Marcador 7 - Fundo do Mar",
+                    "Marcador 8 - Céu Estrelado",
+                    "Marcador 9 - Experiência Especial"
+                ],
+                
+                // Miniaturas
+                thumbnails: [
+                    "🏖️", "🌴", "🐠", "🌊", "🌅", "🏝️", "🐬", "🌌", "🌟"
+                ]
+            }
+        };
+        
+        // Configuración actual
+        let currentLang = 'es'; // Idioma por defecto
+        let selectedLang = null;
+        let funMessageInterval = null;
+        let videoLoopChecker = null;
+        let isMuted = true;
+        let activeMarkerIndex = null;
+        let allMarkers = [];
+        let markerVideos = [];
+        let currentVideoIndex = 0;
+        
+        // =================== LISTA DE VIDEOS ===================
+        
+        // 8 videos diferentes para los 9 marcadores
+        const videoSources = [
+            './videos/video1.mp4',
+            './videos/video2.mp4', 
+            './videos/video3.mp4',
+            './videos/video4.mp4',
+            './videos/video5.mp4',
+            './videos/video6.mp4',
+            './videos/video7.mp4',
+            './videos/video8.mp4'
+            // El marcador 9 no tiene video (índice 8)
+        ];
+        
+        // =================== SISTEMA DE LOOP OPTIMIZADO ===================
+        
+        function startVideoLoopChecker() {
+            if (videoLoopChecker) {
+                clearInterval(videoLoopChecker);
+            }
+            
+            videoLoopChecker = setInterval(() => {
+                const overlayVideo = document.getElementById('overlayVideo');
+                const videoOverlay = document.getElementById('videoOverlay');
+                
+                // Verificar video overlay
+                if (videoOverlay.style.display === 'flex' && overlayVideo) {
+                    if (overlayVideo.duration > 0 && 
+                        overlayVideo.currentTime >= overlayVideo.duration - 0.1) {
+                        console.log('Video overlay cerca del final, reiniciando...');
+                        overlayVideo.currentTime = 0;
+                        overlayVideo.play().catch(e => {
+                            overlayVideo.muted = true;
+                            overlayVideo.play();
+                        });
+                    }
+                    
+                    if (overlayVideo.paused && overlayVideo.currentTime < overlayVideo.duration) {
+                        overlayVideo.play().catch(e => {
+                            overlayVideo.muted = true;
+                            overlayVideo.play();
+                        });
+                    }
+                }
+                
+                // Verificar videos AR
+                markerVideos.forEach((video, index) => {
+                    if (video && !video.paused) {
+                        if (video.duration > 0 && 
+                            video.currentTime >= video.duration - 0.1) {
+                            console.log(`Video ${index} cerca del final, reiniciando...`);
+                            video.currentTime = 0;
+                            video.play().catch(e => {
+                                video.muted = true;
+                                video.play();
+                            });
+                        }
+                    }
+                });
+            }, 500);
+        }
+        
+        function stopVideoLoopChecker() {
+            if (videoLoopChecker) {
+                clearInterval(videoLoopChecker);
+                videoLoopChecker = null;
+            }
+        }
+        
+        function setupVideoLoopEvents(videoElement) {
+            if (!videoElement) return;
+            
+            videoElement.addEventListener('ended', function() {
+                console.log('Video terminado, reiniciando loop...');
+                this.currentTime = 0;
+                this.play().catch(e => {
+                    this.muted = true;
+                    this.play();
+                });
+            });
+            
+            videoElement.addEventListener('error', function(e) {
+                console.log('Error en video:', e);
+                setTimeout(() => {
+                    this.load();
+                    this.play().catch(err => {
+                        this.muted = true;
+                        this.play();
+                    });
+                }, 1000);
+            });
+        }
+        
+        // =================== BOTÓN DE SALIDA TOTAL ===================
+        
+        function exitAppCompletely() {
+            const t = translations[currentLang];
+            
+            const goodbyeScreen = document.getElementById('goodbyeScreen');
+            document.getElementById('goodbyeTitle').textContent = t.goodbyeTitle;
+            document.getElementById('goodbyeMessage').innerHTML = t.goodbyeMessage;
+            
+            goodbyeScreen.style.display = 'flex';
+            setTimeout(() => {
+                goodbyeScreen.style.opacity = '1';
+            }, 100);
+            
+            const allScreens = [
+                document.getElementById('languageScreen'),
+                document.getElementById('cameraPermissionScreen'),
+                document.getElementById('loadingScreen'),
+                document.getElementById('ar-scene'),
+                document.getElementById('videoOverlay'),
+                document.getElementById('soundToggle'),
+                document.getElementById('arInstructions'),
+                document.getElementById('exitExperienceBtn'),
+                document.getElementById('fullExitBtn'),
+                document.getElementById('markerIndicator'),
+                document.getElementById('thumbnailsContainer')
+            ];
+            
+            allScreens.forEach(screen => {
+                if (screen) {
+                    screen.style.opacity = '0';
+                    setTimeout(() => {
+                        screen.style.display = 'none';
+                    }, 500);
+                }
+            });
+            
+            stopFunMessages();
+            stopVideoLoopChecker();
+            
+            const overlayVideo = document.getElementById('overlayVideo');
+            markerVideos.forEach(video => {
+                if (video) video.pause();
+            });
+            if (overlayVideo) overlayVideo.pause();
+            
+            const arScene = document.getElementById('ar-scene');
+            arScene.innerHTML = '';
+            
+            setTimeout(() => {
+                if (window.opener || window.history.length <= 1) {
+                    try {
+                        window.close();
+                    } catch (e) {
+                        console.log('No se pudo cerrar la ventana automáticamente');
+                    }
+                }
+                
+                setTimeout(() => {
+                    window.location.href = 'about:blank';
+                }, 1000);
+            }, 3000);
+        }
+        
+        // =================== FUNCIONES DE IDIOMA ===================
+        
+        function updateLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            if (document.getElementById('languageTitle')) {
+                document.getElementById('languageTitle').textContent = t.languageTitle;
+            }
+            if (document.getElementById('languageSubtitle')) {
+                document.getElementById('languageSubtitle').textContent = t.languageSubtitle;
+            }
+            if (document.getElementById('languageNote')) {
+                document.getElementById('languageNote').textContent = t.languageNote;
+            }
+            
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+        
+        function loadPermissionScreen(lang) {
+            const t = translations[lang];
+            
+            document.getElementById('permissionTitle').textContent = t.permissionTitle;
+            document.getElementById('permissionDescription').innerHTML = t.permissionDescription;
+            document.getElementById('permissionBtnText').textContent = t.permissionBtn;
+            document.getElementById('permissionNote').textContent = t.permissionNote;
+            document.getElementById('transitionMessage1').textContent = t.transition1;
+        }
+        
+        function loadLoadingScreen(lang) {
+            const t = translations[lang];
+            
+            document.getElementById('loadingTitle').textContent = t.loadingTitle;
+            document.getElementById('loadingText').textContent = t.loadingText;
+            document.getElementById('transitionMessage2').textContent = t.transition2;
+            
+            const container = document.getElementById('instructionsContainer');
+            container.innerHTML = '';
+            
+            t.instructions.forEach((instruction, index) => {
+                const step = document.createElement('div');
+                step.className = 'instruction-step';
+                step.innerHTML = `
+                    <span class="instruction-icon">${instruction.icon}</span>
+                    <div class="instruction-text">${instruction.text}</div>
+                `;
+                container.appendChild(step);
+            });
+            
+            document.getElementById('arInstructionText').innerHTML = `
+                <span class="icon">👉</span>
+                ${t.arInstruction}
+            `;
+            
+            startFunMessages(lang);
+        }
+        
+        function startFunMessages(lang) {
+            const t = translations[lang];
+            const loadingText = document.getElementById('loadingText');
+            let messageIndex = 0;
+            
+            if (funMessageInterval) {
+                clearInterval(funMessageInterval);
+            }
+            
+            funMessageInterval = setInterval(() => {
+                if (messageIndex >= t.funMessages.length) {
+                    messageIndex = 0;
+                }
+                loadingText.textContent = t.funMessages[messageIndex];
+                messageIndex++;
+            }, 3000);
+        }
+        
+        function stopFunMessages() {
+            if (funMessageInterval) {
+                clearInterval(funMessageInterval);
+                funMessageInterval = null;
+            }
+        }
+        
+        // =================== SALIDA DE EXPERIENCIA ===================
+        
+        function exitExperience() {
+            const permissionScreen = document.getElementById('cameraPermissionScreen');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const arScene = document.getElementById('ar-scene');
+            const videoOverlay = document.getElementById('videoOverlay');
+            const soundToggle = document.getElementById('soundToggle');
+            const arInstructions = document.getElementById('arInstructions');
+            const exitExperienceBtn = document.getElementById('exitExperienceBtn');
+            const fullExitBtn = document.getElementById('fullExitBtn');
+            const markerIndicator = document.getElementById('markerIndicator');
+            const thumbnailsContainer = document.getElementById('thumbnailsContainer');
+            
+            permissionScreen.style.opacity = '0';
+            loadingScreen.style.opacity = '0';
+            arScene.style.opacity = '0';
+            videoOverlay.style.display = 'none';
+            soundToggle.style.display = 'none';
+            arInstructions.style.display = 'none';
+            exitExperienceBtn.style.display = 'none';
+            fullExitBtn.style.display = 'none';
+            markerIndicator.style.display = 'none';
+            thumbnailsContainer.style.display = 'none';
+            
+            stopFunMessages();
+            stopVideoLoopChecker();
+            
+            const overlayVideo = document.getElementById('overlayVideo');
+            markerVideos.forEach(video => {
+                if (video) video.pause();
+            });
+            if (overlayVideo) overlayVideo.pause();
+            
+            arScene.innerHTML = '';
+            
+            setTimeout(() => {
+                permissionScreen.style.display = 'none';
+                loadingScreen.style.display = 'none';
+                arScene.style.display = 'none';
+                
+                const languageScreen = document.getElementById('languageScreen');
+                languageScreen.style.display = 'flex';
+                
+                setTimeout(() => {
+                    languageScreen.style.opacity = '1';
+                }, 100);
+            }, 500);
+        }
+        
+        // =================== PANTALLA DE IDIOMA ===================
+        
+        function setupLanguageButtons() {
+            console.log("Configurando botones de idioma...");
+            
+            const languageButtons = document.querySelectorAll('.language-btn');
+            
+            languageButtons.forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', function() {
+                    console.log("Botón clickeado:", this.id);
+                    selectedLang = this.dataset.lang;
+                    console.log("Idioma seleccionado:", selectedLang);
+                    
+                    updateLanguage(selectedLang);
+                    
+                    setTimeout(() => {
+                        proceedToPermissionScreen();
+                    }, 500);
+                });
+                
+                newBtn.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                newBtn.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                newBtn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+        
+        function proceedToPermissionScreen() {
+            console.log("Procediendo a pantalla de permisos...");
+            const languageScreen = document.getElementById('languageScreen');
+            const permissionScreen = document.getElementById('cameraPermissionScreen');
+            const exitExperienceBtn = document.getElementById('exitExperienceBtn');
+            const t = translations[selectedLang];
+            
+            const exitBtnIcon = exitExperienceBtn.querySelector('.btn-icon');
+            const exitBtnText = exitExperienceBtn.querySelector('.btn-text');
+            if (exitBtnIcon) exitBtnIcon.textContent = t.exitIcon;
+            if (exitBtnText) exitBtnText.textContent = t.exitBtn;
+            
+            loadPermissionScreen(selectedLang);
+            
+            languageScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                languageScreen.style.display = 'none';
+                permissionScreen.style.display = 'flex';
+                exitExperienceBtn.style.display = 'flex';
+                
+                setTimeout(() => {
+                    permissionScreen.style.opacity = '1';
+                }, 100);
+            }, 500);
+        }
+        
+        // =================== PANTALLA DE PERMISOS ===================
+        
+        async function requestCameraPermission() {
+            const allowCameraBtn = document.getElementById('allowCameraBtn');
+            const t = translations[currentLang];
+            
+            try {
+                console.log('Solicitando permiso de cámara...');
+                
+                allowCameraBtn.innerHTML = `<span class="btn-icon">⏳</span> ${t.processing}`;
+                allowCameraBtn.disabled = true;
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false 
+                });
+                
+                console.log('Permiso de cámara concedido');
+                
+                stream.getTracks().forEach(track => track.stop());
+                
+                allowCameraBtn.innerHTML = `<span class="btn-icon">✅</span> ${t.granted}`;
+                allowCameraBtn.style.background = 'linear-gradient(135deg, #4ECDC4, #1A535C)';
+                
+                setTimeout(() => {
+                    proceedToLoadingScreen();
+                }, 1000);
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Error al acceder a la cámara:', error);
+                
+                allowCameraBtn.innerHTML = `<span class="btn-icon">❌</span> ${t.error}`;
+                allowCameraBtn.disabled = false;
+                allowCameraBtn.style.background = 'linear-gradient(135deg, #FF3333, #FF6666)';
+                
+                allowCameraBtn.onclick = requestCameraPermission;
+                
+                let errorMessage = '';
+                
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorMessage = t.errorMessages.denied;
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = t.errorMessages.noCamera;
+                } else if (error.name === 'NotSupportedError') {
+                    errorMessage = t.errorMessages.notSupported;
+                } else {
+                    errorMessage = t.errorMessages.unknown + error.message;
+                }
+                
+                alert(errorMessage);
+                return false;
+            }
+        }
+        
+        function proceedToLoadingScreen() {
+            console.log("Procediendo a pantalla de carga...");
+            const permissionScreen = document.getElementById('cameraPermissionScreen');
+            const loadingScreen = document.getElementById('loadingScreen');
+            
+            loadLoadingScreen(selectedLang);
+            
+            permissionScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                permissionScreen.style.display = 'none';
+                loadingScreen.style.display = 'flex';
+                
+                setTimeout(() => {
+                    simulateLoading();
+                }, 300);
+                
+            }, 500);
+        }
+        
+        // =================== SISTEMA DE CARGA ===================
+        
+        function simulateLoading() {
+            console.log("Iniciando simulación de carga...");
+            const loadingBar = document.getElementById('loadingBar');
+            const loadingPercentage = document.getElementById('loadingPercentage');
+            const loadingText = document.getElementById('loadingText');
+            const t = translations[currentLang];
+            
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 3 + 2;
+                if (progress > 100) progress = 100;
+                
+                loadingBar.style.width = progress + '%';
+                loadingPercentage.textContent = Math.round(progress) + '%';
+                
+                if (progress < 30) {
+                    loadingText.textContent = t.funMessages[0];
+                } else if (progress < 70) {
+                    loadingText.textContent = t.funMessages[Math.floor(progress / 10)];
+                } else {
+                    loadingText.textContent = t.transition3;
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    stopFunMessages();
+                    
+                    setTimeout(() => {
+                        initARScene();
+                    }, 1500);
+                }
+            }, 150);
+        }
+        
+        // =================== SISTEMA AR PARA 9 MARCADORES ===================
+        
+        function initARScene() {
+            console.log("Iniciando escena AR con 9 marcadores...");
+            const loadingScreen = document.getElementById('loadingScreen');
+            const arScene = document.getElementById('ar-scene');
+            const exitExperienceBtn = document.getElementById('exitExperienceBtn');
+            const fullExitBtn = document.getElementById('fullExitBtn');
+            const soundToggle = document.getElementById('soundToggle');
+            const closeVideoBtn = document.getElementById('closeVideoBtn');
+            const t = translations[currentLang];
+            
+            // Actualizar botones
+            const exitBtnIcon = exitExperienceBtn.querySelector('.btn-icon');
+            const exitBtnText = exitExperienceBtn.querySelector('.btn-text');
+            const fullExitIcon = fullExitBtn.querySelector('.btn-icon');
+            const fullExitText = fullExitBtn.querySelector('.btn-text');
+            const soundIcon = soundToggle.querySelector('.btn-icon');
+            const soundText = soundToggle.querySelector('.btn-text');
+            const closeIcon = closeVideoBtn.querySelector('.btn-icon');
+            const closeText = closeVideoBtn.querySelector('.btn-text');
+            
+            if (exitBtnIcon) exitBtnIcon.textContent = t.exitIcon;
+            if (exitBtnText) exitBtnText.textContent = t.exitBtn;
+            if (fullExitIcon) fullExitIcon.textContent = t.fullExitIcon;
+            if (fullExitText) fullExitText.textContent = t.fullExit;
+            if (soundIcon) soundIcon.textContent = t.soundIconOff;
+            if (soundText) soundText.textContent = t.soundOff;
+            if (closeIcon) closeIcon.textContent = t.closeIcon;
+            if (closeText) closeText.textContent = t.closeVideo;
+            
+            // Crear miniaturas
+            createThumbnails();
+            
+            loadingScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                
+                // Crear escena A-Frame con 9 marcadores
+                let assetsHTML = '';
+                let targetsHTML = '';
+                
+                // Agregar 8 videos a los assets
+                for (let i = 0; i < 8; i++) {
+                    assetsHTML += `
+                        <video 
+                            id="ar-video${i}" 
+                            src="${videoSources[i]}" 
+                            preload="auto"
+                            loop 
+                            muted 
+                            playsinline 
+                            crossorigin="anonymous"
+                            webkit-playsinline
+                        ></video>
+                    `;
+                }
+                
+                // Crear 9 marcadores
+                for (let i = 0; i < 9; i++) {
+                    targetsHTML += `
+                        <a-entity 
+                            id="ar-target${i}" 
+                            mindar-image-target="targetIndex: ${i}"
+                        >
+                    `;
+                    
+                    // Los primeros 8 marcadores tienen video
+                    if (i < 8) {
+                        targetsHTML += `
+                            <a-plane
+                                src="#ar-video${i}"
+                                position="0 0 0"
+                                rotation="0 0 0"
+                                height="1"
+                                width="1.78"
+                                material="transparent: true; alphaTest: 0.5;"
+                            ></a-plane>
+                        `;
+                    } else {
+                        // Marcador 9: contenido estático (imagen o texto)
+                        targetsHTML += `
+                            <a-plane
+                                color="#4ECDC4"
+                                position="0 0 0"
+                                rotation="0 0 0"
+                                height="1"
+                                width="1.78"
+                                material="transparent: true; opacity: 0.8;"
+                            >
+                                <a-text 
+                                    value="🎉 Experiencia Especial 🎉"
+                                    color="white"
+                                    align="center"
+                                    width="3"
+                                    position="0 0 0.01"
+                                    scale="0.5 0.5 0.5"
+                                ></a-text>
+                            </a-plane>
+                        `;
+                    }
+                    
+                    targetsHTML += `</a-entity>`;
+                }
+                
+                arScene.innerHTML = `
+                    <a-scene 
+                        mindar-image="imageTargetSrc: ./marker.mind; autoStart: true; uiScanning: no; uiLoading: no; uiError: no;" 
+                        vr-mode-ui="enabled: false"
+                        device-orientation-permission-ui="enabled: false"
+                        permission-ui="enabled: false"
+                        renderer="colorManagement: true; alpha: true; antialias: true;"
+                        embedded
+                        loading-screen="enabled: false; dotsColor: transparent; backgroundColor: transparent;"
+                        keyboard-shortcuts="enterVR: false"
+                    >
+                        <a-assets>
+                            ${assetsHTML}
+                        </a-assets>
+                        
+                        <a-camera 
+                            position="0 0 0" 
+                            look-controls="enabled: false"
+                            wasd-controls="enabled: false"
+                            cursor="rayOrigin: mouse"
+                        ></a-camera>
+                        
+                        ${targetsHTML}
+                    </a-scene>
+                `;
+                
+                // Configurar el video overlay
+                const overlayVideo = document.getElementById('overlayVideo');
+                overlayVideo.src = videoSources[0]; // Video por defecto
+                overlayVideo.loop = true;
+                overlayVideo.muted = true;
+                
+                setupVideoLoopEvents(overlayVideo);
+                startVideoLoopChecker();
+                
+                setTimeout(() => {
+                    arScene.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        arScene.style.opacity = '1';
+                        
+                        exitExperienceBtn.style.display = 'flex';
+                        fullExitBtn.style.display = 'flex';
+                        
+                        const arInstructions = document.getElementById('arInstructions');
+                        arInstructions.style.display = 'block';
+                        
+                        setTimeout(() => {
+                            arInstructions.style.opacity = '0';
+                            setTimeout(() => {
+                                arInstructions.style.display = 'none';
+                            }, 500);
+                        }, 5000);
+                        
+                        setTimeout(() => {
+                            setupAREvents();
+                        }, 1000);
+                        
+                    }, 100);
+                    
+                }, 100);
+                
+            }, 500);
+        }
+        
+        // Crear miniaturas para navegación
+        function createThumbnails() {
+            const t = translations[currentLang];
+            const container = document.getElementById('thumbnailsContainer');
+            container.innerHTML = '';
+            
+            t.thumbnails.forEach((icon, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'thumbnail-btn';
+                btn.innerHTML = icon;
+                btn.dataset.index = index;
+                
+                btn.addEventListener('click', () => {
+                    showMarkerPreview(index);
+                });
+                
+                container.appendChild(btn);
+            });
+            
+            container.style.display = 'flex';
+        }
+        
+        // Mostrar vista previa de marcador
+        function showMarkerPreview(index) {
+            const t = translations[currentLang];
+            const overlayVideo = document.getElementById('overlayVideo');
+            const videoOverlay = document.getElementById('videoOverlay');
+            
+            if (index < 8) {
+                overlayVideo.src = videoSources[index];
+                overlayVideo.currentTime = 0;
+                overlayVideo.muted = isMuted;
+                overlayVideo.play().catch(e => {
+                    overlayVideo.muted = true;
+                    overlayVideo.play();
+                });
+                
+                videoOverlay.style.display = 'flex';
+                
+                // Actualizar miniaturas activas
+                document.querySelectorAll('.thumbnail-btn').forEach((btn, i) => {
+                    btn.classList.remove('active');
+                    if (i === index) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Actualizar indicador
+                updateMarkerIndicator(index);
+            }
+        }
+        
+        // Actualizar indicador de marcador
+        function updateMarkerIndicator(index) {
+            const t = translations[currentLang];
+            const markerIndicator = document.getElementById('markerIndicator');
+            const markerIcon = document.getElementById('markerIcon');
+            const markerText = document.getElementById('markerText');
+            
+            markerIcon.textContent = t.thumbnails[index];
+            markerText.textContent = t.markerNames[index];
+            markerIndicator.style.display = 'flex';
+            
+            activeMarkerIndex = index;
+        }
+        
+        // Configurar eventos AR
+        function setupAREvents() {
+            console.log("Configurando eventos AR para 9 marcadores...");
+            const soundToggle = document.getElementById('soundToggle');
+            const videoOverlay = document.getElementById('videoOverlay');
+            const overlayVideo = document.getElementById('overlayVideo');
+            const closeVideoBtn = document.getElementById('closeVideoBtn');
+            const exitExperienceBtn = document.getElementById('exitExperienceBtn');
+            const fullExitBtn = document.getElementById('fullExitBtn');
+            const t = translations[currentLang];
+            
+            // Inicializar arrays
+            allMarkers = [];
+            markerVideos = [];
+            
+            // Obtener referencias a todos los marcadores y videos
+            for (let i = 0; i < 9; i++) {
+                const marker = document.querySelector(`#ar-target${i}`);
+                if (marker) {
+                    allMarkers.push(marker);
+                    
+                    // Obtener video para los primeros 8 marcadores
+                    if (i < 8) {
+                        const video = document.querySelector(`#ar-video${i}`);
+                        if (video) {
+                            markerVideos.push(video);
+                            setupVideoLoopEvents(video);
+                        }
+                    }
+                }
+            }
+            
+            // Configurar eventos para cada marcador
+            allMarkers.forEach((marker, index) => {
+                if (!marker) return;
+                
+                // Evento cuando se encuentra el marcador
+                marker.addEventListener('targetFound', () => {
+                    console.log(`Marcador ${index} detectado`);
+                    
+                    // Actualizar indicador
+                    updateMarkerIndicator(index);
+                    
+                    // Mostrar botón de sonido si tiene video
+                    if (index < 8) {
+                        soundToggle.style.display = 'flex';
+                    }
+                    
+                    // Reproducir video si corresponde
+                    if (index < 8 && markerVideos[index]) {
+                        markerVideos[index].muted = isMuted;
+                        markerVideos[index].play().catch(e => {
+                            markerVideos[index].muted = true;
+                            markerVideos[index].play();
+                        });
+                    }
+                    
+                    // Ocultar overlay si está visible
+                    videoOverlay.style.display = 'none';
+                    overlayVideo.pause();
+                    
+                    // Actualizar miniaturas
+                    document.querySelectorAll('.thumbnail-btn').forEach((btn, i) => {
+                        btn.classList.remove('active');
+                        if (i === index) {
+                            btn.classList.add('active');
+                        }
+                    });
+                });
+                
+                // Evento cuando se pierde el marcador
+                marker.addEventListener('targetLost', () => {
+                    console.log(`Marcador ${index} perdido`);
+                    
+                    // Pausar video si corresponde
+                    if (index < 8 && markerVideos[index]) {
+                        markerVideos[index].pause();
+                    }
+                    
+                    // Si no hay ningún marcador visible, mostrar overlay
+                    setTimeout(() => {
+                        let anyMarkerVisible = false;
+                        allMarkers.forEach((m, i) => {
+                            if (m.getAttribute('visible')) {
+                                anyMarkerVisible = true;
+                            }
+                        });
+                        
+                        if (!anyMarkerVisible && index < 8) {
+                            // Mostrar overlay con el video del marcador perdido
+                            overlayVideo.src = videoSources[index];
+                            overlayVideo.currentTime = markerVideos[index] ? markerVideos[index].currentTime : 0;
+                            overlayVideo.muted = isMuted;
+                            overlayVideo.play().catch(e => {
+                                overlayVideo.muted = true;
+                                overlayVideo.play();
+                            });
+                            videoOverlay.style.display = 'flex';
+                            
+                            // Ocultar botón de sonido mientras el overlay está visible
+                            soundToggle.style.display = 'none';
+                        }
+                    }, 100);
+                });
+            });
+            
+            // Botón de sonido
+            soundToggle.addEventListener('click', toggleSound);
+            
+            // Botón para cerrar el video overlay
+            closeVideoBtn.addEventListener('click', () => {
+                videoOverlay.style.display = 'none';
+                overlayVideo.pause();
+                
+                // Volver a mostrar el botón de sonido si hay un marcador visible
+                let anyMarkerVisible = false;
+                allMarkers.forEach((marker, i) => {
+                    if (marker.getAttribute('visible') && i < 8) {
+                        anyMarkerVisible = true;
+                    }
+                });
+                
+                if (anyMarkerVisible) {
+                    soundToggle.style.display = 'flex';
+                }
+            });
+            
+            // Cerrar el overlay si se toca fuera del video
+            videoOverlay.addEventListener('click', (e) => {
+                if (e.target === videoOverlay) {
+                    videoOverlay.style.display = 'none';
+                    overlayVideo.pause();
+                    
+                    let anyMarkerVisible = false;
+                    allMarkers.forEach((marker, i) => {
+                        if (marker.getAttribute('visible') && i < 8) {
+                            anyMarkerVisible = true;
+                        }
+                    });
+                    
+                    if (anyMarkerVisible) {
+                        soundToggle.style.display = 'flex';
+                    }
+                }
+            });
+            
+            // Botón de salida de la experiencia
+            exitExperienceBtn.addEventListener('click', exitExperience);
+            
+            // Botón de salida total de la aplicación
+            fullExitBtn.addEventListener('click', exitAppCompletely);
+        }
+        
+        // Función para alternar sonido
+        function toggleSound() {
+            const soundToggle = document.getElementById('soundToggle');
+            const soundIcon = soundToggle.querySelector('.btn-icon');
+            const soundText = soundToggle.querySelector('.btn-text');
+            const t = translations[currentLang];
+            
+            isMuted = !isMuted;
+            
+            // Actualizar todos los videos AR
+            markerVideos.forEach(video => {
+                if (video) video.muted = isMuted;
+            });
+            
+            // Actualizar overlay video
+            const overlayVideo = document.getElementById('overlayVideo');
+            if (overlayVideo) overlayVideo.muted = isMuted;
+            
+            // Actualizar botón
+            if (isMuted) {
+                if (soundIcon) soundIcon.textContent = t.soundIconOff;
+                if (soundText) soundText.textContent = t.soundOff;
+                console.log('Sonido desactivado');
+            } else {
+                if (soundIcon) soundIcon.textContent = t.soundIconOn;
+                if (soundText) soundText.textContent = t.soundOn;
+                console.log('Sonido activado');
+            }
+            
+            // Feedback visual
+            soundToggle.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                soundToggle.style.transform = 'scale(1)';
+            }, 100);
+        }
+        
+        // =================== INICIALIZACIÓN ===================
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Página cargada. Mostrando selección de idioma...');
+            
+            setupLanguageButtons();
+            
+            document.getElementById('allowCameraBtn').addEventListener('click', requestCameraPermission);
+            
+            document.getElementById('exitExperienceBtn').addEventListener('click', exitExperience);
+            document.getElementById('fullExitBtn').addEventListener('click', exitAppCompletely);
+            
+            const browserLang = navigator.language.substring(0, 2);
+            if (browserLang === 'en' || browserLang === 'pt') {
+                currentLang = browserLang;
+                updateLanguage(currentLang);
+            }
+        });
+        
+        window.addEventListener('resize', () => {
+            const screens = [
+                document.getElementById('languageScreen'),
+                document.getElementById('cameraPermissionScreen'),
+                document.getElementById('loadingScreen'),
+                document.getElementById('goodbyeScreen')
+            ];
+            screens.forEach(screen => {
+                if (screen) {
+                    screen.style.height = window.innerHeight + 'px';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
